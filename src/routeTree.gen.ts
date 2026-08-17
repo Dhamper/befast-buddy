@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConsentRouteImport } from './routes/consent'
+import { Route as HubRouteImport } from './routes/hub'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as ModeRouteImport } from './routes/mode'
 import { Route as OnsetRouteImport } from './routes/onset'
@@ -17,6 +19,16 @@ import { Route as OnsetRouteImport } from './routes/onset'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConsentRoute = ConsentRouteImport.update({
+  id: '/consent',
+  path: '/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnRoute = LearnRouteImport.update({
@@ -37,12 +49,16 @@ const OnsetRoute = OnsetRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/consent': typeof ConsentRoute
+  '/hub': typeof HubRoute
   '/learn': typeof LearnRoute
   '/mode': typeof ModeRoute
   '/onset': typeof OnsetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/consent': typeof ConsentRoute
+  '/hub': typeof HubRoute
   '/learn': typeof LearnRoute
   '/mode': typeof ModeRoute
   '/onset': typeof OnsetRoute
@@ -50,20 +66,24 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/consent': typeof ConsentRoute
+  '/hub': typeof HubRoute
   '/learn': typeof LearnRoute
   '/mode': typeof ModeRoute
   '/onset': typeof OnsetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/learn' | '/mode' | '/onset'
+  fullPaths: '/' | '/consent' | '/hub' | '/learn' | '/mode' | '/onset'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/learn' | '/mode' | '/onset'
-  id: '__root__' | '/' | '/learn' | '/mode' | '/onset'
+  to: '/' | '/consent' | '/hub' | '/learn' | '/mode' | '/onset'
+  id: '__root__' | '/' | '/consent' | '/hub' | '/learn' | '/mode' | '/onset'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConsentRoute: typeof ConsentRoute
+  HubRoute: typeof HubRoute
   LearnRoute: typeof LearnRoute
   ModeRoute: typeof ModeRoute
   OnsetRoute: typeof OnsetRoute
@@ -76,6 +96,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/consent': {
+      id: '/consent'
+      path: '/consent'
+      fullPath: '/consent'
+      preLoaderRoute: typeof ConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn': {
@@ -104,6 +138,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConsentRoute: ConsentRoute,
+  HubRoute: HubRoute,
   LearnRoute: LearnRoute,
   ModeRoute: ModeRoute,
   OnsetRoute: OnsetRoute,
