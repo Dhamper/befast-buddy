@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConsentRouteImport } from './routes/consent'
+import { Route as EmergencyRouteImport } from './routes/emergency'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as HubRouteImport } from './routes/hub'
+import { Route as LearnRouteImport } from './routes/learn'
+import { Route as ModeRouteImport } from './routes/mode'
+import { Route as OnsetRouteImport } from './routes/onset'
+import { Route as ResultsRouteImport } from './routes/results'
+import { Route as CheckLetterRouteImport } from './routes/check.$letter'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConsentRoute = ConsentRouteImport.update({
+  id: '/consent',
+  path: '/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmergencyRoute = EmergencyRouteImport.update({
+  id: '/emergency',
+  path: '/emergency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModeRoute = ModeRouteImport.update({
+  id: '/mode',
+  path: '/mode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnsetRoute = OnsetRouteImport.update({
+  id: '/onset',
+  path: '/onset',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultsRoute = ResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckLetterRoute = CheckLetterRouteImport.update({
+  id: '/check/$letter',
+  path: '/check/$letter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/consent': typeof ConsentRoute
+  '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
+  '/hub': typeof HubRoute
+  '/learn': typeof LearnRoute
+  '/mode': typeof ModeRoute
+  '/onset': typeof OnsetRoute
+  '/results': typeof ResultsRoute
+  '/check/$letter': typeof CheckLetterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/consent': typeof ConsentRoute
+  '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
+  '/hub': typeof HubRoute
+  '/learn': typeof LearnRoute
+  '/mode': typeof ModeRoute
+  '/onset': typeof OnsetRoute
+  '/results': typeof ResultsRoute
+  '/check/$letter': typeof CheckLetterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/consent': typeof ConsentRoute
+  '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
+  '/hub': typeof HubRoute
+  '/learn': typeof LearnRoute
+  '/mode': typeof ModeRoute
+  '/onset': typeof OnsetRoute
+  '/results': typeof ResultsRoute
+  '/check/$letter': typeof CheckLetterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/consent'
+    | '/emergency'
+    | '/history'
+    | '/hub'
+    | '/learn'
+    | '/mode'
+    | '/onset'
+    | '/results'
+    | '/check/$letter'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/consent'
+    | '/emergency'
+    | '/history'
+    | '/hub'
+    | '/learn'
+    | '/mode'
+    | '/onset'
+    | '/results'
+    | '/check/$letter'
+  id:
+    | '__root__'
+    | '/'
+    | '/consent'
+    | '/emergency'
+    | '/history'
+    | '/hub'
+    | '/learn'
+    | '/mode'
+    | '/onset'
+    | '/results'
+    | '/check/$letter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConsentRoute: typeof ConsentRoute
+  EmergencyRoute: typeof EmergencyRoute
+  HistoryRoute: typeof HistoryRoute
+  HubRoute: typeof HubRoute
+  LearnRoute: typeof LearnRoute
+  ModeRoute: typeof ModeRoute
+  OnsetRoute: typeof OnsetRoute
+  ResultsRoute: typeof ResultsRoute
+  CheckLetterRoute: typeof CheckLetterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/consent': {
+      id: '/consent'
+      path: '/consent'
+      fullPath: '/consent'
+      preLoaderRoute: typeof ConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emergency': {
+      id: '/emergency'
+      path: '/emergency'
+      fullPath: '/emergency'
+      preLoaderRoute: typeof EmergencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mode': {
+      id: '/mode'
+      path: '/mode'
+      fullPath: '/mode'
+      preLoaderRoute: typeof ModeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onset': {
+      id: '/onset'
+      path: '/onset'
+      fullPath: '/onset'
+      preLoaderRoute: typeof OnsetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/results': {
+      id: '/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof ResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/check/$letter': {
+      id: '/check/$letter'
+      path: '/check/$letter'
+      fullPath: '/check/$letter'
+      preLoaderRoute: typeof CheckLetterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConsentRoute: ConsentRoute,
+  EmergencyRoute: EmergencyRoute,
+  HistoryRoute: HistoryRoute,
+  HubRoute: HubRoute,
+  LearnRoute: LearnRoute,
+  ModeRoute: ModeRoute,
+  OnsetRoute: OnsetRoute,
+  ResultsRoute: ResultsRoute,
+  CheckLetterRoute: CheckLetterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

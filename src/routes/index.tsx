@@ -1,24 +1,65 @@
 import { createFileRoute } from "@tanstack/react-router";
+import heroImage from "@/assets/befast-hero.jpg";
+import { AppShell } from "@/components/AppShell";
+import { GlassCard, PrimaryLink, SecondaryLink } from "@/components/ui-kit";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "BEFAST AI — Fast and easy stroke detection tool" },
+      {
+        name: "description",
+        content:
+          "A guided BE-FAST stroke warning-sign screening prototype: balance, eyes, face, arms and speech checked on device, with onset time tracked from the first minute.",
+      },
+      { property: "og:title", content: "BEFAST AI — Fast and easy stroke detection tool" },
+      {
+        property: "og:description",
+        content:
+          "Guided BE-FAST screening prototype. On-device camera and voice checks, urgency tiers, and an emergency handoff summary.",
+      },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Landing() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <AppShell showSession={false}>
+      <div className="mx-auto grid max-w-6xl gap-6 pt-4 lg:grid-cols-2 lg:items-stretch">
+        <GlassCard notch="tr" className="flex flex-col justify-between gap-10 p-8 sm:p-10">
+          <div>
+            <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl">
+              BEFAST
+              <br />
+              AI
+            </h1>
+            <p className="eyebrow mt-6 max-w-xs text-white/85">
+              Fast and easy stroke detection tool
+            </p>
+            <p className="mt-6 max-w-md text-white/85">
+              Six guided checks — Balance, Eyes, Face, Arms, Speech and Time.
+              Camera and voice are processed on your device; nothing is uploaded.
+            </p>
+          </div>
+          <div className="flex flex-col items-start gap-4">
+            <PrimaryLink to="/mode" className="w-full sm:w-auto">
+              Begin
+            </PrimaryLink>
+            <SecondaryLink to="/learn">Learn more</SecondaryLink>
+          </div>
+        </GlassCard>
+
+        <div className="overflow-hidden rounded-[32px] border border-white/25">
+          <img
+            src={heroImage}
+            alt="Illustration of a head in profile with a glowing neural network and a clock, representing time-critical stroke care"
+            width={1024}
+            height={1280}
+            className="size-full object-cover"
+          />
+        </div>
+      </div>
+    </AppShell>
   );
 }
