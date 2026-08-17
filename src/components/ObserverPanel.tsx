@@ -57,7 +57,7 @@ export function ObserverPanel({
                       aria-pressed={active}
                       onClick={() => onChange(q.id, o.value)}
                       className={cn(
-                        "min-h-16 flex-1 rounded-lg border px-5 font-mono text-sm uppercase tracking-[0.14em]",
+                        "min-h-16 flex-1 rounded-[8px] border px-5 font-mono text-sm uppercase tracking-[0.14em]",
                         active
                           ? "border-transparent bg-primary text-primary-foreground"
                           : "border-white/30 bg-white/10 hover:bg-white/20",

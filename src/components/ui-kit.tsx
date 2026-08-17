@@ -38,7 +38,7 @@ export function PrimaryButton({
       {...props}
       className={cn(
         base,
-        "rounded-lg bg-primary text-lg font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85",
+        "rounded-[8px] bg-primary text-lg font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85",
         className,
       )}
     />
@@ -54,7 +54,7 @@ export function SecondaryButton({
       {...props}
       className={cn(
         base,
-        "glass rounded-lg font-mono text-sm uppercase tracking-[0.18em] text-foreground hover:bg-white/20",
+        "glass rounded-[8px] font-mono text-sm uppercase tracking-[0.18em] text-foreground hover:bg-white/20",
         className,
       )}
     />
@@ -75,7 +75,7 @@ export function PrimaryLink({
       to={to}
       className={cn(
         base,
-        "rounded-lg bg-primary text-lg font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85",
+        "rounded-[8px] bg-primary text-lg font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85",
         className,
       )}
     >
@@ -98,7 +98,7 @@ export function SecondaryLink({
       to={to}
       className={cn(
         base,
-        "glass rounded-lg font-mono text-sm uppercase tracking-[0.18em] text-foreground hover:bg-white/20",
+        "glass rounded-[8px] font-mono text-sm uppercase tracking-[0.18em] text-foreground hover:bg-white/20",
         className,
       )}
     >

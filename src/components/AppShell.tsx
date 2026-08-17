@@ -12,7 +12,7 @@ export function EmergencyCallButton({ className }: { className?: string }) {
       href={`tel:${EMERGENCY.number}`}
       aria-label={`Call ${EMERGENCY.number}, ${EMERGENCY.label}`}
       className={cn(
-        "inline-flex min-h-16 items-center gap-3 rounded-lg bg-alert-high px-6 text-lg font-extrabold uppercase tracking-wide text-white shadow-lg shadow-black/40 hover:brightness-110",
+        "inline-flex min-h-16 items-center gap-3 rounded-[8px] bg-alert-high px-6 text-lg font-extrabold uppercase tracking-wide text-white shadow-lg shadow-black/40 hover:brightness-110",
         className,
       )}
     >

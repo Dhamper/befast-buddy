@@ -118,7 +118,7 @@ function Results() {
           <Link
             to="/history"
             onClick={archive}
-            className="glass inline-flex min-h-16 items-center rounded-lg px-6 font-mono text-sm uppercase tracking-[0.18em] hover:bg-white/20"
+            className="glass inline-flex min-h-16 items-center rounded-[8px] px-6 font-mono text-sm uppercase tracking-[0.18em] hover:bg-white/20"
           >
             Save to history
           </Link>

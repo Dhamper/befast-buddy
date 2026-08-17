@@ -22,7 +22,7 @@ function NotFoundComponent() {
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex min-h-16 items-center justify-center rounded-lg bg-primary px-6 font-extrabold uppercase tracking-wide text-primary-foreground"
+            className="inline-flex min-h-16 items-center justify-center rounded-[8px] bg-primary px-6 font-extrabold uppercase tracking-wide text-primary-foreground"
           >
             Go home
           </Link>
@@ -53,13 +53,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex min-h-16 items-center justify-center rounded-lg bg-primary px-6 font-extrabold uppercase tracking-wide text-primary-foreground"
+            className="inline-flex min-h-16 items-center justify-center rounded-[8px] bg-primary px-6 font-extrabold uppercase tracking-wide text-primary-foreground"
           >
             Try again
           </button>
           <a
             href="/"
-            className="glass inline-flex min-h-16 items-center justify-center rounded-lg px-6 font-mono text-sm uppercase tracking-[0.18em]"
+            className="glass inline-flex min-h-16 items-center justify-center rounded-[8px] px-6 font-mono text-sm uppercase tracking-[0.18em]"
           >
             Go home
           </a>

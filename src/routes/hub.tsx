@@ -47,7 +47,7 @@ function Hub() {
         {offer && (
           <Link
             to="/emergency"
-            className="block rounded-lg bg-alert-high px-6 py-5 text-lg font-extrabold uppercase tracking-wide text-white"
+            className="block rounded-[8px] bg-alert-high px-6 py-5 text-lg font-extrabold uppercase tracking-wide text-white"
           >
             A warning sign has been flagged — open emergency action now
           </Link>
@@ -78,7 +78,7 @@ function Hub() {
                   <Link
                     to="/check/$letter"
                     params={{ letter: l.letter }}
-                    className="flex min-h-16 items-center justify-center rounded-lg bg-primary px-6 font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85"
+                    className="flex min-h-16 items-center justify-center rounded-[8px] bg-primary px-6 font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85"
                   >
                     Check
                   </Link>

@@ -123,7 +123,7 @@ function Emergency() {
 
         <GlassCard className="space-y-4">
           <h2 className="eyebrow text-white/85">Handoff summary</h2>
-          <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-black/40 p-4 font-mono text-xs">
+          <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-[8px] bg-black/40 p-4 font-mono text-xs">
             {summary}
           </pre>
           <div className="flex flex-wrap gap-3">
@@ -133,7 +133,7 @@ function Emergency() {
               href="https://www.google.com/maps/search/stroke+hospital+emergency+near+me"
               target="_blank"
               rel="noreferrer"
-              className="glass inline-flex min-h-16 items-center rounded-lg px-6 font-mono text-sm uppercase tracking-[0.18em] hover:bg-white/20"
+              className="glass inline-flex min-h-16 items-center rounded-[8px] px-6 font-mono text-sm uppercase tracking-[0.18em] hover:bg-white/20"
             >
               Find nearest hospital
             </a>

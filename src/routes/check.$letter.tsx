@@ -122,7 +122,7 @@ function ModuleScreen() {
         {offer && (
           <Link
             to="/emergency"
-            className="block rounded-lg bg-alert-high px-6 py-4 text-base font-extrabold uppercase tracking-wide text-white"
+            className="block rounded-[8px] bg-alert-high px-6 py-4 text-base font-extrabold uppercase tracking-wide text-white"
           >
             Warning sign flagged — open emergency action
           </Link>

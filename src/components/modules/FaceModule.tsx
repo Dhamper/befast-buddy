@@ -171,7 +171,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
               key={f.slice(-24)}
               src={f}
               alt="Saved face frame kept on this device only"
-              className="h-28 rounded-lg border border-white/25"
+              className="h-28 rounded-[8px] border border-white/25"
             />
           ))}
         </div>

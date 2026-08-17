@@ -46,7 +46,7 @@ function Onset() {
                 setOnset(o.key);
                 navigate({ to: "/consent" });
               }}
-              className="min-h-16 w-full rounded-lg border border-white/30 bg-white/10 px-6 text-left text-lg hover:bg-white/20"
+              className="min-h-16 w-full rounded-[8px] border border-white/30 bg-white/10 px-6 text-left text-lg hover:bg-white/20"
             >
               {o.label}
             </button>
