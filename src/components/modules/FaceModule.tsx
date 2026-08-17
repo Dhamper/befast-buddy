@@ -79,7 +79,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
       rafRef.current = requestAnimationFrame(loop);
       peakRef.current = { smile: 0, brow: 0 };
       setStep(0);
-      speak(STEPS[0]);
+      speak(STEPS[0]!);
     } catch {
       /* observer questions remain available */
     }
@@ -91,7 +91,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
     if (step < STEPS.length - 1) {
       const n = step + 1;
       setStep(n);
-      speak(STEPS[n]);
+      speak(STEPS[n]!);
       return;
     }
     const peak = Math.min(

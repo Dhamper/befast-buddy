@@ -78,14 +78,14 @@ export function PoseModule({
       if (pts && pts.length > 28) {
         draw(pts);
         const d = dataRef.current;
-        const ls = pts[11];
-        const rs = pts[12];
-        const lw = pts[15];
-        const rw = pts[16];
+        const ls = pts[11]!;
+        const rs = pts[12]!;
+        const lw = pts[15]!;
+        const rw = pts[16]!;
         d.shoulderWidth = Math.max(0.05, Math.hypot(ls.x - rs.x, ls.y - rs.y));
         if (variant === "balance") {
-          const lh = pts[23];
-          const rh = pts[24];
+          const lh = pts[23]!;
+          const rh = pts[24]!;
           d.mids.push((ls.x + rs.x + lh.x + rh.x) / 4);
           d.tilts.push(
             (Math.atan2(rs.y - ls.y, rs.x - ls.x) * 180) / Math.PI,
