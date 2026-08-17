@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConsentRouteImport } from './routes/consent'
+import { Route as EmergencyRouteImport } from './routes/emergency'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as ModeRouteImport } from './routes/mode'
@@ -26,6 +28,16 @@ const IndexRoute = IndexRouteImport.update({
 const ConsentRoute = ConsentRouteImport.update({
   id: '/consent',
   path: '/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmergencyRoute = EmergencyRouteImport.update({
+  id: '/emergency',
+  path: '/emergency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HubRoute = HubRouteImport.update({
@@ -62,6 +74,8 @@ const CheckLetterRoute = CheckLetterRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
+  '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
   '/hub': typeof HubRoute
   '/learn': typeof LearnRoute
   '/mode': typeof ModeRoute
@@ -72,6 +86,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
+  '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
   '/hub': typeof HubRoute
   '/learn': typeof LearnRoute
   '/mode': typeof ModeRoute
@@ -83,6 +99,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
+  '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
   '/hub': typeof HubRoute
   '/learn': typeof LearnRoute
   '/mode': typeof ModeRoute
@@ -95,6 +113,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/consent'
+    | '/emergency'
+    | '/history'
     | '/hub'
     | '/learn'
     | '/mode'
@@ -105,6 +125,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/consent'
+    | '/emergency'
+    | '/history'
     | '/hub'
     | '/learn'
     | '/mode'
@@ -115,6 +137,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/consent'
+    | '/emergency'
+    | '/history'
     | '/hub'
     | '/learn'
     | '/mode'
@@ -126,6 +150,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConsentRoute: typeof ConsentRoute
+  EmergencyRoute: typeof EmergencyRoute
+  HistoryRoute: typeof HistoryRoute
   HubRoute: typeof HubRoute
   LearnRoute: typeof LearnRoute
   ModeRoute: typeof ModeRoute
@@ -148,6 +174,20 @@ declare module '@tanstack/react-router' {
       path: '/consent'
       fullPath: '/consent'
       preLoaderRoute: typeof ConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emergency': {
+      id: '/emergency'
+      path: '/emergency'
+      fullPath: '/emergency'
+      preLoaderRoute: typeof EmergencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hub': {
@@ -198,6 +238,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConsentRoute: ConsentRoute,
+  EmergencyRoute: EmergencyRoute,
+  HistoryRoute: HistoryRoute,
   HubRoute: HubRoute,
   LearnRoute: LearnRoute,
   ModeRoute: ModeRoute,
