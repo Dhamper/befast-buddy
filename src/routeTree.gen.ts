@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LearnRouteImport } from './routes/learn'
+import { Route as ModeRouteImport } from './routes/mode'
+import { Route as OnsetRouteImport } from './routes/onset'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModeRoute = ModeRouteImport.update({
+  id: '/mode',
+  path: '/mode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnsetRoute = OnsetRouteImport.update({
+  id: '/onset',
+  path: '/onset',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/learn': typeof LearnRoute
+  '/mode': typeof ModeRoute
+  '/onset': typeof OnsetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/learn': typeof LearnRoute
+  '/mode': typeof ModeRoute
+  '/onset': typeof OnsetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/learn': typeof LearnRoute
+  '/mode': typeof ModeRoute
+  '/onset': typeof OnsetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/learn' | '/mode' | '/onset'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/learn' | '/mode' | '/onset'
+  id: '__root__' | '/' | '/learn' | '/mode' | '/onset'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LearnRoute: typeof LearnRoute
+  ModeRoute: typeof ModeRoute
+  OnsetRoute: typeof OnsetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mode': {
+      id: '/mode'
+      path: '/mode'
+      fullPath: '/mode'
+      preLoaderRoute: typeof ModeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onset': {
+      id: '/onset'
+      path: '/onset'
+      fullPath: '/onset'
+      preLoaderRoute: typeof OnsetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LearnRoute: LearnRoute,
+  ModeRoute: ModeRoute,
+  OnsetRoute: OnsetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
