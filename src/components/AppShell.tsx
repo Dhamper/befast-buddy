@@ -25,9 +25,16 @@ export function EmergencyCallButton({ className }: { className?: string }) {
 export function AppShell({
   children,
   showSession = true,
+  fitViewport = false,
 }: {
   children: ReactNode;
   showSession?: boolean;
+  /**
+   * Lock the page to exactly one screen: the shell takes the viewport height
+   * and main never scrolls, so the page's own flex children have to share the
+   * space that is left. Only for pages designed to fit.
+   */
+  fitViewport?: boolean;
 }) {
   const { session } = useSession();
   const elapsed = useElapsed(session.onsetRecordedAt);
@@ -52,16 +59,22 @@ export function AppShell({
   }, []);
 
   return (
-    <div className="min-h-app relative flex flex-col">
+    <div
+      className={cn("relative flex flex-col", fitViewport ? "h-app overflow-hidden" : "min-h-app")}
+    >
       <Decor />
-      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-6 sm:py-5 lg:px-10">
         <Link to="/" className="title-light text-xl sm:text-2xl lg:text-3xl">
           BEFAST AI
         </Link>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {started && (
-            <span className="glass rounded-full px-3 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.14em] sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.16em]">
-              Since onset {elapsed}
+            <span
+              className="glass rounded-full px-3 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.14em] sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.16em]"
+              aria-label={`Time since onset ${elapsed}`}
+            >
+              <span className="hidden sm:inline">Since onset </span>
+              {elapsed}
             </span>
           )}
           <Link
@@ -74,12 +87,17 @@ export function AppShell({
       </header>
 
       <main
-        className="flex-1 px-4 sm:px-6 lg:px-10"
+        className={cn(
+          "px-4 sm:px-6 lg:px-10",
+          fitViewport ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "flex-1",
+        )}
         style={{
           // Clear the fixed footer, plus the floating call button when shown.
+          // A fit page reserves only what the button actually occupies, since
+          // every pixel it gives up has to come out of the content.
           paddingBottom: started
-            ? "calc(var(--app-footer-h) + 7rem)"
-            : "calc(var(--app-footer-h) + 2rem)",
+            ? `calc(var(--app-footer-h) + ${fitViewport ? "5.5rem" : "7rem"})`
+            : `calc(var(--app-footer-h) + ${fitViewport ? "0.75rem" : "2rem"})`,
         }}
       >
         {children}
