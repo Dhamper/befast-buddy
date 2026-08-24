@@ -34,8 +34,13 @@ function Landing() {
           One card, with the artwork as its own background rather than a second
           card beside it. @container makes the card the sizing reference for
           --text-hero, so the wordmark always fits the space it actually has.
+
+          Rounded rather than notched: the deck's stepped corner cut a bite out
+          of the top-right of the photograph, which reads as a damaged image
+          rather than a deliberate silhouette now that the card carries
+          artwork. The motif still appears on the background Decor shapes.
         */}
-        <section className="notch-tr @container relative isolate overflow-hidden">
+        <section className="@container relative isolate overflow-hidden rounded-[22px] sm:rounded-[32px]">
           <img
             src={heroImage}
             alt="Illustration of a head in profile with a glowing neural network and a clock, representing time-critical stroke care"
@@ -79,7 +84,7 @@ function Landing() {
           {/* Drawn last so the image cannot paint over the card edge. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 border border-white/25"
+            className="pointer-events-none absolute inset-0 rounded-[22px] border border-white/25 sm:rounded-[32px]"
           />
         </section>
       </div>
