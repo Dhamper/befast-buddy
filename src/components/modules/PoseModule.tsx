@@ -11,7 +11,7 @@ import {
   SWAY_UNCERTAIN,
   statusFromThresholds,
 } from "@/lib/scoring";
-import { speak } from "@/lib/speak";
+import { speak, stopSpeaking } from "@/lib/speak";
 import { est, type ModuleProps } from "./types";
 
 const HOLD_MS = 10_000;
@@ -31,6 +31,8 @@ export function PoseModule({
     right: 0,
   });
   const rafRef = useRef<number | null>(null);
+  const tickRef = useRef<number | null>(null);
+  const doneRef = useRef(false);
   const lmRef = useRef<any>(null);
   const dataRef = useRef({
     mids: [] as number[],
@@ -50,7 +52,10 @@ export function PoseModule({
 
   useEffect(
     () => () => {
+      doneRef.current = true;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (tickRef.current) clearInterval(tickRef.current);
+      stopSpeaking();
     },
     [],
   );
@@ -106,7 +111,10 @@ export function PoseModule({
   };
 
   const finish = () => {
+    if (doneRef.current) return;
+    doneRef.current = true;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (tickRef.current) clearInterval(tickRef.current);
     const d = dataRef.current;
     if (variant === "balance") {
       const mids = d.mids;
@@ -149,6 +157,7 @@ export function PoseModule({
 
   const begin = async () => {
     setPhase("loading");
+    doneRef.current = false;
     await start();
     dataRef.current = {
       mids: [],
@@ -169,13 +178,10 @@ export function PoseModule({
     setPhase("running");
     speak(instruction);
     const startedAt = Date.now();
-    const tick = setInterval(() => {
+    tickRef.current = window.setInterval(() => {
       const left = Math.max(0, HOLD_MS - (Date.now() - startedAt));
       setRemaining(Math.ceil(left / 1000));
-      if (left <= 0) {
-        clearInterval(tick);
-        finish();
-      }
+      if (left <= 0) finish();
     }, 200);
   };
 

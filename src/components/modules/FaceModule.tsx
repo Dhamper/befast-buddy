@@ -3,7 +3,7 @@ import { Reticle, PrimaryButton, SecondaryButton } from "@/components/ui-kit";
 import { useCamera } from "@/lib/useCamera";
 import { loadFaceLandmarker } from "@/lib/vision";
 import { FACE_ASYM_POSITIVE, FACE_ASYM_UNCERTAIN, statusFromThresholds } from "@/lib/scoring";
-import { speak } from "@/lib/speak";
+import { speak, stopSpeaking } from "@/lib/speak";
 import { est, type ModuleProps } from "./types";
 
 const STEPS = [
@@ -25,6 +25,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
   useEffect(
     () => () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      stopSpeaking();
     },
     [],
   );

@@ -57,7 +57,13 @@
    * The vw term is what scales; the two clamp bounds keep it readable at the
    * extremes. Min values are chosen so no heading can overflow at 320px.
    */
-  --text-hero: clamp(3rem, 13vw, 8rem);
+  /*
+   * Sized in cqw against the hero card, not vw: "BEFAST" is 6 wide Archivo
+   * Black glyphs (~4.3em), so anything above ~20cqw cannot fit its container
+   * and used to wrap mid-word. Falls back to the viewport where no container
+   * ancestor exists (the 404 page).
+   */
+  --text-hero: clamp(2.5rem, 19cqw, 7rem);
   --text-hero--line-height: 0.86;
   --text-hero--letter-spacing: -0.03em;
 
@@ -249,8 +255,12 @@
   font-family: var(--font-display);
   letter-spacing: -0.03em;
   line-height: 0.86;
-  /* Archivo Black is very wide; allow it to shrink rather than overflow. */
-  overflow-wrap: anywhere;
+  /*
+   * Deliberately NOT overflow-wrap: anywhere. These are wordmarks and
+   * headlines; breaking "BEFAST" into "BEFAS / T" is worse than any overflow.
+   * Fitting is handled by sizing the type against its container instead.
+   */
+  overflow-wrap: normal;
 }
 
 @utility title-light {
