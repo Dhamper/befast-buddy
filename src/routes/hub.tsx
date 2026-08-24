@@ -30,14 +30,20 @@ function Hub() {
   const offer = shouldOfferEmergency(session.results);
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-3 sm:gap-4">
-          <h1 className="title-light text-page">The six checks</h1>
-          <SecondaryLink to="/results">See results</SecondaryLink>
+    // Most use is on a phone, and this is the screen someone lands on while
+    // deciding whether to act. All six checks have to be reachable without a
+    // scroll, so the page is locked to one viewport and the grid absorbs
+    // whatever height the header, progress bar and alert banner leave behind.
+    <AppShell fitViewport>
+      <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col gap-2 sm:gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="title-light text-2xl sm:text-page">The six checks</h1>
+          <SecondaryLink to="/results" className="min-h-11 shrink-0 px-4 sm:min-h-16 sm:px-8">
+            Results
+          </SecondaryLink>
         </div>
 
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/15">
+        <div className="h-1 w-full shrink-0 overflow-hidden rounded-full bg-white/15 sm:h-1.5">
           <div
             className="h-full rounded-full bg-primary transition-[width]"
             style={{ width: `${(done / 6) * 100}%` }}
@@ -47,46 +53,77 @@ function Hub() {
         {offer && (
           <Link
             to="/emergency"
-            className="block rounded-[8px] bg-alert-high px-5 py-4 text-base font-extrabold uppercase tracking-wide text-white sm:px-6 sm:py-5 sm:text-lg"
+            className="shrink-0 rounded-[8px] bg-alert-high px-4 py-3 text-center text-xs font-extrabold uppercase tracking-wide text-white sm:px-6 sm:py-5 sm:text-lg"
           >
-            A warning sign has been flagged — open emergency action now
+            <span className="sm:hidden">Sign flagged — act now</span>
+            <span className="hidden sm:inline">
+              A warning sign has been flagged — open emergency action now
+            </span>
           </Link>
         )}
 
-        <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:pb-0 md:grid-cols-3 xl:grid-cols-6">
+        {/*
+          2x3 on phones, 3x2 on tablets, 6x1 on desktop. Explicit row counts so
+          the rows share the available height instead of sizing to content.
+        */}
+        <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-3 gap-2 sm:grid-cols-3 sm:grid-rows-2 sm:gap-4 xl:grid-cols-6 xl:grid-rows-1">
           {LETTERS.map((l) => {
             const status = resolveSign(session.results[l.letter]);
             return (
-              <div
+              // The whole card is the target. A separate CHECK button cost
+              // ~64px per card, which is what made six cards need a scroll.
+              <Link
                 key={l.letter}
-                className="flex min-w-[78%] snap-start flex-col justify-between rounded-[22px] border border-white/25 p-5 sm:min-w-0 sm:rounded-[28px] sm:p-6 xl:p-5"
+                to="/check/$letter"
+                params={{ letter: l.letter }}
+                className="flex min-h-0 flex-col gap-1.5 overflow-hidden rounded-[16px] border border-white/25 p-2.5 text-white transition-[filter] hover:brightness-110 sm:rounded-[24px] sm:p-5"
                 style={{ background: "var(--gradient-module)" }}
               >
-                <div>
-                  <span className="display-xl block text-glyph text-white">{l.letter}</span>
-                  <p className="eyebrow mt-3 font-bold text-white">{l.label}</p>
-                  <ul className="mt-3 list-disc space-y-1 pl-4 text-[0.8rem] text-white/95 sm:mt-4 sm:pl-5 sm:text-sm">
+                {/*
+                  The letter is drawn as a vector rather than sized in px or
+                  vh. It fills whatever height is left after the label and
+                  status line, so it is exactly as large as the card allows on
+                  any device — no clamp to tune, and nothing to overflow.
+                  Only the decorative glyph is scaled this way; everything the
+                  user has to read stays real text that respects their font
+                  size settings.
+                */}
+                <div className="min-h-0 flex-1">
+                  <svg
+                    viewBox="0 0 72 100"
+                    preserveAspectRatio="xMinYMid meet"
+                    className="size-full"
+                    role="img"
+                    aria-label={l.label}
+                  >
+                    <text x="0" y="79" className="display-xl" fontSize="100" fill="currentColor">
+                      {l.letter}
+                    </text>
+                  </svg>
+                </div>
+                <div className="shrink-0">
+                  <p className="eyebrow font-bold text-white">{l.label}</p>
+                  {/* Bullets are the first thing cut; they only appear where
+                      the row is tall enough to hold them. */}
+                  <ul className="mt-3 hidden list-disc space-y-1 pl-4 text-sm text-white/95 lg:block">
                     {l.bullets.map((b) => (
                       <li key={b}>{b}</li>
                     ))}
                   </ul>
+                  <div className="mt-1.5 sm:mt-2">
+                    {status === "unchecked" ? (
+                      <span className="eyebrow text-white/90">Check →</span>
+                    ) : (
+                      <StatusChip status={status} />
+                    )}
+                  </div>
                 </div>
-                <div className="mt-5 space-y-3 sm:mt-6">
-                  {status !== "unchecked" && <StatusChip status={status} />}
-                  <Link
-                    to="/check/$letter"
-                    params={{ letter: l.letter }}
-                    className="flex min-h-16 items-center justify-center rounded-[8px] bg-primary px-4 text-sm font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85 sm:px-6 sm:text-base"
-                  >
-                    Check
-                  </Link>
-                </div>
-              </div>
+              </Link>
             );
           })}
         </div>
 
-        <GlassCard>
+        <GlassCard className="hidden shrink-0 lg:block">
           <p className="eyebrow mb-2 text-white/80">Fail-safe</p>
           <p className="text-white/90">
             You never have to finish all six. As soon as one sign is flagged or uncertain, the
