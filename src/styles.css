@@ -235,6 +235,12 @@
   min-height: 100dvh;
 }
 
+/* Exact viewport height, for pages that must fit one screen with no scroll. */
+@utility h-app {
+  height: 100vh;
+  height: 100dvh;
+}
+
 @utility eyebrow {
   font-family: var(--font-mono);
   text-transform: uppercase;
