@@ -15,10 +15,10 @@ import { SessionProvider } from "../lib/session";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="min-h-app flex items-center justify-center px-4 py-10">
       <div className="max-w-md text-center">
-        <h1 className="display-xl text-7xl">404</h1>
-        <h2 className="title-light mt-4 text-2xl">Page not found</h2>
+        <h1 className="display-xl text-hero">404</h1>
+        <h2 className="title-light mt-4 text-section">Page not found</h2>
         <div className="mt-6">
           <Link
             to="/"
@@ -40,12 +40,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="min-h-app flex items-center justify-center px-4 py-10">
       <div className="max-w-md text-center">
-        <h1 className="title-light text-2xl">This page didn't load</h1>
+        <h1 className="title-light text-section">This page didn't load</h1>
         <p className="mt-2 text-base text-white/80">
-          Something went wrong. If you suspect a stroke, call emergency services
-          now — do not wait for this app.
+          Something went wrong. If you suspect a stroke, call emergency services now — do not wait
+          for this app.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button
@@ -73,7 +73,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
+      },
       { name: "author", content: "BEFAST AI" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

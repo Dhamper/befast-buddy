@@ -26,31 +26,37 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <AppShell showSession={false}>
-      <div className="mx-auto grid max-w-6xl gap-6 pt-4 lg:grid-cols-2 lg:items-stretch">
-        <GlassCard notch="tr" className="flex flex-col justify-between gap-10 p-8 sm:p-10">
+      <div className="mx-auto grid max-w-6xl gap-4 pt-2 sm:gap-6 sm:pt-4 lg:grid-cols-2 lg:items-stretch">
+        <GlassCard
+          notch="tr"
+          className="flex flex-col justify-between gap-8 p-6 sm:p-8 lg:gap-10 lg:p-10"
+        >
           <div>
-            <h1 className="display-xl text-6xl sm:text-7xl lg:text-8xl">
+            <h1 className="display-xl text-hero">
               BEFAST
               <br />
               AI
             </h1>
-            <p className="eyebrow mt-6 max-w-xs text-white/85">
+            <p className="eyebrow mt-5 max-w-xs text-white/85 sm:mt-6">
               Fast and easy stroke detection tool
             </p>
-            <p className="mt-6 max-w-md text-white/85">
-              Six guided checks — Balance, Eyes, Face, Arms, Speech and Time.
-              Camera and voice are processed on your device; nothing is uploaded.
+            <p className="mt-5 max-w-md text-white/85 sm:mt-6">
+              Six guided checks — Balance, Eyes, Face, Arms, Speech and Time. Camera and voice are
+              processed on your device; nothing is uploaded.
             </p>
           </div>
-          <div className="flex flex-col items-start gap-4">
-            <PrimaryLink to="/mode" className="w-full sm:w-auto">
-              Begin
-            </PrimaryLink>
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <PrimaryLink to="/mode">Begin</PrimaryLink>
             <SecondaryLink to="/learn">Learn more</SecondaryLink>
           </div>
         </GlassCard>
 
-        <div className="overflow-hidden rounded-[32px] border border-white/25">
+        {/*
+          The artwork is a 4:5 portrait. Left unconstrained it filled a whole
+          tablet screen before the "Begin" button, so its height is capped until
+          the two-column layout kicks in at lg.
+        */}
+        <div className="max-h-[42dvh] overflow-hidden rounded-[22px] border border-white/25 sm:max-h-[52dvh] sm:rounded-[32px] lg:max-h-none">
           <img
             src={heroImage}
             alt="Illustration of a head in profile with a glowing neural network and a clock, representing time-critical stroke care"

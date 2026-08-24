@@ -3,12 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { GlassCard, SecondaryLink, StatusChip } from "@/components/ui-kit";
 import { EmergencyCallButton } from "@/components/AppShell";
 import { LETTERS, byLetter } from "@/lib/content";
-import {
-  assess,
-  ONSET_OPTIONS,
-  resolveSign,
-  type Letter,
-} from "@/lib/scoring";
+import { assess, ONSET_OPTIONS, resolveSign, type Letter } from "@/lib/scoring";
 import { DISCLAIMER } from "@/theme";
 import { useElapsed, useSession } from "@/lib/session";
 
@@ -36,8 +31,7 @@ function Results() {
   const { session, archive } = useSession();
   const elapsed = useElapsed(session.onsetRecordedAt);
   const result = assess(session.results, session.onset);
-  const onsetLabel =
-    ONSET_OPTIONS.find((o) => o.key === session.onset)?.label ?? "not recorded";
+  const onsetLabel = ONSET_OPTIONS.find((o) => o.key === session.onset)?.label ?? "not recorded";
 
   const tint =
     result.tier === "positive"
@@ -49,17 +43,17 @@ function Results() {
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl space-y-6">
-        <h1 className="title-light text-4xl sm:text-5xl">Result</h1>
+        <h1 className="title-light text-page">Result</h1>
 
-        <div className={`rounded-[28px] border p-7 ${tint}`}>
+        <div className={`rounded-[20px] border p-5 sm:rounded-[28px] sm:p-7 ${tint}`}>
           <p className="eyebrow mb-3 text-white/85">Urgency tier</p>
-          <h2 className="display-xl text-3xl sm:text-4xl">{result.headline}</h2>
-          <p className="mt-4 text-lg text-white/90">{result.action}</p>
+          <h2 className="display-xl text-display">{result.headline}</h2>
+          <p className="mt-4 text-base text-white/90 sm:text-lg">{result.action}</p>
           <p className="mt-2 text-white/80">
             Time since onset {elapsed} · reported as “{onsetLabel}”
           </p>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <EmergencyCallButton />
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+            <EmergencyCallButton className="justify-center" />
             <SecondaryLink to="/emergency">Emergency action steps</SecondaryLink>
           </div>
         </div>
@@ -72,18 +66,21 @@ function Results() {
             return (
               <GlassCard key={l.letter} className="space-y-4">
                 <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <span className="display-xl text-4xl">{l.letter}</span>
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <span className="display-xl text-[2rem] sm:text-4xl">{l.letter}</span>
                     <span className="eyebrow text-white/85">{l.label}</span>
                   </div>
                   <StatusChip status={status} />
                 </div>
                 {r?.measurements?.length ? (
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {r.measurements.map((m) => (
-                      <li key={m.label} className="flex flex-wrap justify-between gap-3">
-                        <span className="text-white/80">{m.label}</span>
-                        <span className="font-mono text-sm">{m.value}</span>
+                      <li
+                        key={m.label}
+                        className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3"
+                      >
+                        <span className="text-sm text-white/80 sm:text-base">{m.label}</span>
+                        <span className="font-mono text-xs sm:text-sm">{m.value}</span>
                       </li>
                     ))}
                   </ul>
@@ -93,9 +90,12 @@ function Results() {
                 {info.observer.length > 0 && r && (
                   <ul className="space-y-1 border-t border-white/20 pt-4 text-base">
                     {info.observer.map((q) => (
-                      <li key={q.id} className="flex flex-wrap justify-between gap-3">
-                        <span className="text-white/80">{q.question}</span>
-                        <span className="font-mono text-sm uppercase">
+                      <li
+                        key={q.id}
+                        className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3"
+                      >
+                        <span className="text-sm text-white/80 sm:text-base">{q.question}</span>
+                        <span className="font-mono text-xs uppercase sm:text-sm">
                           {q.id in r.observer
                             ? r.observer[q.id] === true
                               ? "Yes"
@@ -113,12 +113,12 @@ function Results() {
           })}
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
           <SecondaryLink to="/hub">Back to checks</SecondaryLink>
           <Link
             to="/history"
             onClick={archive}
-            className="glass inline-flex min-h-16 items-center rounded-[8px] px-6 font-mono text-sm uppercase tracking-[0.18em] hover:bg-white/20"
+            className="glass inline-flex min-h-16 items-center justify-center rounded-[8px] px-5 font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
           >
             Save to history
           </Link>

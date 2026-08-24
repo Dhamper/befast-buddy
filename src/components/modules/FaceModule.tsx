@@ -2,11 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Reticle, PrimaryButton, SecondaryButton } from "@/components/ui-kit";
 import { useCamera } from "@/lib/useCamera";
 import { loadFaceLandmarker } from "@/lib/vision";
-import {
-  FACE_ASYM_POSITIVE,
-  FACE_ASYM_UNCERTAIN,
-  statusFromThresholds,
-} from "@/lib/scoring";
+import { FACE_ASYM_POSITIVE, FACE_ASYM_UNCERTAIN, statusFromThresholds } from "@/lib/scoring";
 import { speak } from "@/lib/speak";
 import { est, type ModuleProps } from "./types";
 
@@ -26,9 +22,12 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
   const rafRef = useRef<number | null>(null);
   const peakRef = useRef({ smile: 0, brow: 0 });
 
-  useEffect(() => () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    },
+    [],
+  );
 
   const loop = () => {
     const video = videoRef.current;
@@ -36,18 +35,12 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
     if (video && lm && video.readyState >= 2) {
       const res = lm.detectForVideo(video, performance.now());
       const bs = res.faceBlendshapes?.[0]?.categories as
-        | { categoryName: string; score: number }[]
-        | undefined;
+        { categoryName: string; score: number }[] | undefined;
       if (bs) {
-        const get = (n: string) =>
-          bs.find((c) => c.categoryName === n)?.score ?? 0;
+        const get = (n: string) => bs.find((c) => c.categoryName === n)?.score ?? 0;
         const smile = Math.abs(get("mouthSmileLeft") - get("mouthSmileRight"));
-        const frown = Math.abs(
-          get("mouthFrownLeft") - get("mouthFrownRight"),
-        );
-        const brow = Math.abs(
-          get("browOuterUpLeft") - get("browOuterUpRight"),
-        );
+        const frown = Math.abs(get("mouthFrownLeft") - get("mouthFrownRight"));
+        const brow = Math.abs(get("browOuterUpLeft") - get("browOuterUpRight"));
         const index = Math.min(1, smile * 1.6 + frown * 0.8 + brow * 0.8);
         peakRef.current.smile = Math.max(peakRef.current.smile, smile);
         peakRef.current.brow = Math.max(peakRef.current.brow, brow);
@@ -94,15 +87,8 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
       speak(STEPS[n]!);
       return;
     }
-    const peak = Math.min(
-      1,
-      peakRef.current.smile * 1.6 + peakRef.current.brow * 0.8,
-    );
-    const status = statusFromThresholds(
-      peak,
-      FACE_ASYM_POSITIVE,
-      FACE_ASYM_UNCERTAIN,
-    );
+    const peak = Math.min(1, peakRef.current.smile * 1.6 + peakRef.current.brow * 0.8);
+    const status = statusFromThresholds(peak, FACE_ASYM_POSITIVE, FACE_ASYM_UNCERTAIN);
     onMeasured(status, [
       est("Left/right asymmetry index", peak.toFixed(2)),
       est("Peak smile asymmetry", peakRef.current.smile.toFixed(2)),
@@ -116,12 +102,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
   return (
     <div className="space-y-5">
       <Reticle midline>
-        <video
-          ref={videoRef}
-          muted
-          playsInline
-          className="size-full scale-x-[-1] object-cover"
-        />
+        <video ref={videoRef} muted playsInline className="size-full scale-x-[-1] object-cover" />
         {!ready && (
           <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-base text-white/80">
             {error ?? "Camera preview appears here. Mirrored, on device only."}
@@ -149,7 +130,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
             : "Face check recorded."}
       </p>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap">
         {step < 0 ? (
           <PrimaryButton onClick={begin} disabled={loading}>
             {loading ? "Starting…" : "Check"}
@@ -165,13 +146,13 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
       </div>
 
       {frames.length > 0 && (
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           {frames.map((f) => (
             <img
               key={f.slice(-24)}
               src={f}
               alt="Saved face frame kept on this device only"
-              className="h-28 rounded-[8px] border border-white/25"
+              className="h-24 rounded-[8px] border border-white/25 sm:h-28"
             />
           ))}
         </div>

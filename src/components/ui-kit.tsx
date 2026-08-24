@@ -15,7 +15,7 @@ export function GlassCard({
   return (
     <div
       className={cn(
-        "glass rounded-[28px] p-6 sm:p-8",
+        "glass rounded-[20px] p-5 sm:rounded-[28px] sm:p-7 lg:p-8",
         notch === "tr" && "notch-tr rounded-none",
         notch === "bl" && "notch-bl rounded-none",
         className,
@@ -27,34 +27,30 @@ export function GlassCard({
 }
 
 const base =
-  "inline-flex min-h-16 items-center justify-center gap-3 px-8 text-center transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 disabled:opacity-50";
+  // min-h-16 is deliberate everywhere: a 64px target stays tappable one-handed
+  // under stress. Only the horizontal padding and label size flex with width.
+  "inline-flex min-h-16 min-w-0 items-center justify-center gap-2 px-5 text-center transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 disabled:opacity-50 sm:gap-3 sm:px-8";
 
-export function PrimaryButton({
-  className,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement>) {
+export function PrimaryButton({ className, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
       className={cn(
         base,
-        "rounded-[8px] bg-primary text-lg font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85",
+        "rounded-[8px] bg-primary text-base font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85 sm:text-lg",
         className,
       )}
     />
   );
 }
 
-export function SecondaryButton({
-  className,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement>) {
+export function SecondaryButton({ className, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
       className={cn(
         base,
-        "glass rounded-[8px] font-mono text-sm uppercase tracking-[0.18em] text-foreground hover:bg-white/20",
+        "glass rounded-[8px] font-mono text-xs uppercase tracking-[0.14em] text-foreground hover:bg-white/20 sm:text-sm sm:tracking-[0.18em]",
         className,
       )}
     />
@@ -75,7 +71,7 @@ export function PrimaryLink({
       to={to}
       className={cn(
         base,
-        "rounded-[8px] bg-primary text-lg font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85",
+        "rounded-[8px] bg-primary text-base font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85 sm:text-lg",
         className,
       )}
     >
@@ -98,7 +94,7 @@ export function SecondaryLink({
       to={to}
       className={cn(
         base,
-        "glass rounded-[8px] font-mono text-sm uppercase tracking-[0.18em] text-foreground hover:bg-white/20",
+        "glass rounded-[8px] font-mono text-xs uppercase tracking-[0.14em] text-foreground hover:bg-white/20 sm:text-sm sm:tracking-[0.18em]",
         className,
       )}
     >
@@ -140,32 +136,24 @@ export function StatusChip({ status }: { status: SignStatus }) {
 }
 
 /** White corner brackets + centred edge ticks, as on the Face slide. */
-export function Reticle({
-  children,
-  midline,
-}: {
-  children: ReactNode;
-  midline?: boolean;
-}) {
-  const corner =
-    "pointer-events-none absolute h-10 w-10 border-white border-[3px]";
+export function Reticle({ children, midline }: { children: ReactNode; midline?: boolean }) {
+  const corner = "pointer-events-none absolute h-7 w-7 border-white border-[3px] sm:h-10 sm:w-10";
   const tick = "pointer-events-none absolute bg-white";
   return (
-    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[18px] bg-black/60 sm:aspect-[3/4]">
+    // media-frame keeps a single 4:5 ratio and caps the height in dvh, so the
+    // frame never pushes the action buttons off screen. A single ratio also
+    // keeps PoseModule's 480x600 landmark canvas aligned at every width.
+    <div className="media-frame relative overflow-hidden rounded-[18px] bg-black/60">
       {children}
-      <div className="absolute inset-3">
+      <div className="absolute inset-2 sm:inset-3">
         <div className={cn(corner, "left-0 top-0 border-b-0 border-r-0")} />
         <div className={cn(corner, "right-0 top-0 border-b-0 border-l-0")} />
         <div className={cn(corner, "bottom-0 left-0 border-r-0 border-t-0")} />
         <div className={cn(corner, "bottom-0 right-0 border-l-0 border-t-0")} />
-        <div className={cn(tick, "left-1/2 top-0 h-[3px] w-8 -translate-x-1/2")} />
-        <div
-          className={cn(tick, "bottom-0 left-1/2 h-[3px] w-8 -translate-x-1/2")}
-        />
-        <div className={cn(tick, "left-0 top-1/2 h-8 w-[3px] -translate-y-1/2")} />
-        <div
-          className={cn(tick, "right-0 top-1/2 h-8 w-[3px] -translate-y-1/2")}
-        />
+        <div className={cn(tick, "left-1/2 top-0 h-[3px] w-6 -translate-x-1/2 sm:w-8")} />
+        <div className={cn(tick, "bottom-0 left-1/2 h-[3px] w-6 -translate-x-1/2 sm:w-8")} />
+        <div className={cn(tick, "left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 sm:h-8")} />
+        <div className={cn(tick, "right-0 top-1/2 h-6 w-[3px] -translate-y-1/2 sm:h-8")} />
         {midline && (
           <div className="pointer-events-none absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/45" />
         )}
@@ -178,8 +166,8 @@ export function Reticle({
 export function Decor() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="notch-bl absolute -left-24 bottom-10 h-72 w-80 border border-white/20 bg-white/5" />
-      <div className="notch-tr absolute -right-16 top-24 h-64 w-72 border border-white/20 bg-white/5" />
+      <div className="notch-bl absolute bottom-10 -left-[15vw] h-[38vh] w-[55vw] border border-white/20 bg-white/5 sm:-left-24 sm:h-72 sm:w-80" />
+      <div className="notch-tr absolute top-24 -right-[12vw] h-[32vh] w-[48vw] border border-white/20 bg-white/5 sm:-right-16 sm:h-64 sm:w-72" />
     </div>
   );
 }

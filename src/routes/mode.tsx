@@ -42,7 +42,7 @@ function ModeSelect() {
   return (
     <AppShell showSession={false}>
       <div className="mx-auto max-w-4xl space-y-6">
-        <h1 className="title-light text-4xl sm:text-5xl">Who is being checked?</h1>
+        <h1 className="title-light text-page">Who is being checked?</h1>
         <div className="grid gap-5 sm:grid-cols-2">
           {CARDS.map((c) => (
             <button
@@ -55,9 +55,9 @@ function ModeSelect() {
               className="text-left"
             >
               <GlassCard className="h-full transition-colors hover:bg-white/15">
-                <h2 className="display-xl text-3xl">{c.title}</h2>
-                <p className="mt-4 text-white/85">{c.body}</p>
-                <p className="eyebrow mt-8 text-primary-foreground/90">Select →</p>
+                <h2 className="display-xl text-section">{c.title}</h2>
+                <p className="mt-3 text-white/85 sm:mt-4">{c.body}</p>
+                <p className="eyebrow mt-6 text-primary-foreground/90 sm:mt-8">Select →</p>
               </GlassCard>
             </button>
           ))}
