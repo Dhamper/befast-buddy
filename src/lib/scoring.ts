@@ -43,13 +43,7 @@ export type ModuleResult = {
   skippedCamera?: boolean;
 };
 
-export type OnsetKey =
-  | "now"
-  | "under1"
-  | "1to3"
-  | "3to45"
-  | "over45"
-  | "unknown";
+export type OnsetKey = "now" | "under1" | "1to3" | "3to45" | "over45" | "unknown";
 
 export const ONSET_OPTIONS: { key: OnsetKey; label: string }[] = [
   { key: "now", label: "Right now / minutes ago" },
@@ -60,22 +54,29 @@ export const ONSET_OPTIONS: { key: OnsetKey; label: string }[] = [
   { key: "unknown", label: "Unknown / present on waking" },
 ];
 
-/** An observer "Yes" always outranks a negative camera measurement. Human report wins. */
+/**
+ * Resolve one sign to a single status. The precedence is deliberate and
+ * fail-safe, in this order:
+ *
+ *  1. An observer "Yes" outranks everything, including a clean camera reading.
+ *     A human saying they see the sign is the strongest evidence here.
+ *  2. Otherwise the camera measurement escalates.
+ *  3. A "Not sure" is never treated as reassurance — it downgrades to uncertain.
+ *  4. Only an automated measurement can CLEAR a sign. Observer "No" answers
+ *     alone leave it unchecked, because the questions the user never answered
+ *     carry no information: previously a single "No" out of three questions,
+ *     with the camera never run, reported the sign as "Completed".
+ */
 export function resolveSign(result?: ModuleResult): SignStatus {
   if (!result) return "unchecked";
   const answers = Object.values(result.observer);
+
   if (answers.some((a) => a === true)) return "positive";
   if (result.measured === "positive") return "positive";
   if (result.measured === "uncertain") return "uncertain";
-  if (answers.some((a) => a === null) && result.measured === "unchecked")
-    return "uncertain";
-  if (result.measured === "unchecked" && answers.every((a) => a === undefined))
-    return "unchecked";
-  if (result.measured === "unchecked" && answers.length === 0)
-    return "unchecked";
-  return result.measured === "negative" || answers.some((a) => a === false)
-    ? "negative"
-    : "unchecked";
+  if (answers.some((a) => a === null)) return "uncertain";
+  if (result.measured === "negative") return "negative";
+  return "unchecked";
 }
 
 export type Tier = "positive" | "uncertain" | "clear";
@@ -112,7 +113,7 @@ export function assess(
     return {
       tier: "positive",
       headline: "URGENT — signs consistent with possible stroke",
-      action: `Call ${"emergency services"} now. ${onsetLine}`,
+      action: `Call emergency services now. ${onsetLine}`,
       flagged,
       uncertain,
     };
@@ -137,9 +138,7 @@ export function assess(
 }
 
 /** True as soon as any single sign is flagged positive or uncertain. */
-export function shouldOfferEmergency(
-  results: Partial<Record<Letter, ModuleResult>>,
-): boolean {
+export function shouldOfferEmergency(results: Partial<Record<Letter, ModuleResult>>): boolean {
   return (["B", "E", "F", "A", "S"] as Letter[]).some((l) => {
     const s = resolveSign(results[l]);
     return s === "positive" || s === "uncertain";

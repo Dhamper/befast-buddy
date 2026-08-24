@@ -10,7 +10,7 @@ import {
   statusFromThresholds,
   type SignStatus,
 } from "@/lib/scoring";
-import { speak } from "@/lib/speak";
+import { speak, stopSpeaking } from "@/lib/speak";
 import { est, type ModuleProps } from "./types";
 
 /** 8 peripheral positions: 4 per side. */
@@ -33,14 +33,17 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
   const [misses, setMisses] = useState({ left: 0, right: 0 });
   const [lidAsym, setLidAsym] = useState<number | null>(null);
   const answered = useRef(false);
+  const doneRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const lmRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
 
   useEffect(
     () => () => {
+      doneRef.current = true;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (timerRef.current) clearTimeout(timerRef.current);
+      stopSpeaking();
     },
     [],
   );
@@ -70,6 +73,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
   };
 
   const beginField = () => {
+    doneRef.current = false;
     setStage("field");
     setMisses({ left: 0, right: 0 });
     speak(
@@ -108,7 +112,9 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
   };
 
   const finish = () => {
+    if (doneRef.current) return;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (timerRef.current) clearTimeout(timerRef.current);
     stop();
     const worstSide = Math.max(misses.left, misses.right);
     const fieldStatus: SignStatus =

@@ -8,7 +8,7 @@ import {
   transcriptAccuracy,
   type SignStatus,
 } from "@/lib/scoring";
-import { speak } from "@/lib/speak";
+import { speak, stopSpeaking } from "@/lib/speak";
 import { est, type ModuleProps } from "./types";
 
 export function SpeechModule({ onMeasured }: ModuleProps) {
@@ -19,24 +19,42 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
   const recRef = useRef<any>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
+  const stopRef = useRef<number | null>(null);
+  const ctxRef = useRef<AudioContext | null>(null);
+  const doneRef = useRef(false);
   const statsRef = useRef({ start: 0, pauses: 0, lastVoice: 0, voiced: 0 });
+
+  /* Every audio resource this module opens, released in one place. */
+  const teardown = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (stopRef.current) clearTimeout(stopRef.current);
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    try {
+      recRef.current?.stop();
+    } catch {
+      /* already stopped */
+    }
+    recRef.current = null;
+    // An AudioContext per "Check" press was never closed; browsers cap these
+    // at around six, so repeated recordings eventually failed silently.
+    ctxRef.current?.close().catch(() => undefined);
+    ctxRef.current = null;
+  };
 
   useEffect(
     () => () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      streamRef.current?.getTracks().forEach((t) => t.stop());
+      doneRef.current = true;
+      teardown();
+      stopSpeaking();
     },
     [],
   );
 
   const finish = (text: string) => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    try {
-      recRef.current?.stop();
-    } catch {
-      /* ignore */
-    }
+    if (doneRef.current) return;
+    doneRef.current = true;
+    teardown();
     const s = statsRef.current;
     const duration = (Date.now() - s.start) / 1000;
     const accuracy = text ? transcriptAccuracy(SPEECH_PHRASE, text) : 0;
@@ -59,6 +77,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
   const begin = async () => {
     setError(null);
     setTranscript("");
+    doneRef.current = false;
     statsRef.current = {
       start: Date.now(),
       pauses: 0,
@@ -77,6 +96,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
     speak("Read the phrase on screen out loud.");
 
     const ctx = new AudioContext();
+    ctxRef.current = ctx;
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 512;
     ctx.createMediaStreamSource(stream).connect(analyser);
@@ -121,7 +141,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
       );
     }
 
-    window.setTimeout(() => finish(heard), 8000);
+    stopRef.current = window.setTimeout(() => finish(heard), 8000);
   };
 
   const targetWords = SPEECH_PHRASE.split(" ");
