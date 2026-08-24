@@ -31,10 +31,8 @@ function History() {
   return (
     <AppShell showSession={false}>
       <div className="mx-auto max-w-3xl space-y-6">
-        <h1 className="title-light text-4xl sm:text-5xl">Session history</h1>
-        <p className="text-white/85">
-          Stored on this device only. Nothing is uploaded.
-        </p>
+        <h1 className="title-light text-page">Session history</h1>
+        <p className="text-white/85">Stored on this device only. Nothing is uploaded.</p>
 
         {history.length === 0 ? (
           <GlassCard>
@@ -44,21 +42,20 @@ function History() {
           history.map((s) => (
             <GlassCard key={s.startedAt} className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="font-mono text-sm">
-                  {new Date(s.startedAt).toLocaleString()}
-                </span>
+                <span className="font-mono text-sm">{new Date(s.startedAt).toLocaleString()}</span>
                 <span className="eyebrow text-white/80">
                   {s.mode === "self" ? "Self-check" : "Observed"}
                 </span>
               </div>
               <p className="text-white/85">
-                Onset:{" "}
-                {ONSET_OPTIONS.find((o) => o.key === s.onset)?.label ??
-                  "not recorded"}
+                Onset: {ONSET_OPTIONS.find((o) => o.key === s.onset)?.label ?? "not recorded"}
               </p>
               <ul className="space-y-2">
                 {(["B", "E", "F", "A", "S", "T"] as Letter[]).map((l) => (
-                  <li key={l} className="flex items-center justify-between gap-3">
+                  <li
+                    key={l}
+                    className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2"
+                  >
                     <span className="text-white/85">{byLetter(l).label}</span>
                     <StatusChip status={resolveSign(s.results[l])} />
                   </li>

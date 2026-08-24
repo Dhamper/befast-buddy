@@ -21,10 +21,13 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
   const rafRef = useRef<number | null>(null);
   const statsRef = useRef({ start: 0, pauses: 0, lastVoice: 0, voiced: 0 });
 
-  useEffect(() => () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-  }, []);
+  useEffect(
+    () => () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+    },
+    [],
+  );
 
   const finish = (text: string) => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -40,10 +43,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
     let status: SignStatus;
     if (!text) status = "uncertain";
     else if (accuracy < SPEECH_ACCURACY_POSITIVE) status = "positive";
-    else if (
-      accuracy < SPEECH_ACCURACY_UNCERTAIN ||
-      s.pauses > SPEECH_PAUSES_UNCERTAIN
-    )
+    else if (accuracy < SPEECH_ACCURACY_UNCERTAIN || s.pauses > SPEECH_PAUSES_UNCERTAIN)
       status = "uncertain";
     else status = "negative";
 
@@ -69,9 +69,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch {
-      setError(
-        "Microphone unavailable or denied — use the observer questions below instead.",
-      );
+      setError("Microphone unavailable or denied — use the observer questions below instead.");
       return;
     }
     streamRef.current = stream;
@@ -97,8 +95,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
     };
     rafRef.current = requestAnimationFrame(tick);
 
-    const SR =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     let heard = "";
     if (SR) {
       const rec = new SR();
@@ -128,42 +125,46 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
   };
 
   const targetWords = SPEECH_PHRASE.split(" ");
-  const saidWords = transcript.toLowerCase().replace(/[^a-z\s']/g, " ").split(/\s+/);
+  const saidWords = transcript
+    .toLowerCase()
+    .replace(/[^a-z\s']/g, " ")
+    .split(/\s+/);
 
   return (
     <div className="space-y-5">
       <Reticle>
-        <div className="absolute inset-0 flex items-center justify-center gap-1 px-10">
+        {/*
+          28 fixed 6px bars plus gaps needed ~280px, which overflowed the ~200px
+          of usable frame width on a small phone. The bars now share the
+          available width and only cap at their original size.
+        */}
+        <div className="absolute inset-0 flex items-center justify-center gap-0.5 px-5 sm:gap-1 sm:px-10">
           {levels.map((l, i) => (
             <span
               key={i}
-              className="w-1.5 rounded-full bg-primary"
+              className="min-w-px max-w-1.5 flex-1 basis-0 rounded-full bg-primary"
               style={{ height: `${Math.min(90, l * 160)}%` }}
             />
           ))}
         </div>
       </Reticle>
 
-      <div className="glass rounded-[20px] p-5">
+      <div className="glass rounded-[20px] p-4 sm:p-5">
         <p className="eyebrow mb-2 text-white/80">Read this out loud</p>
-        <p className="text-2xl font-semibold">{SPEECH_PHRASE}</p>
+        <p className="text-section font-semibold">{SPEECH_PHRASE}</p>
       </div>
 
       {phase === "done" && (
-        <div className="glass rounded-[20px] p-5">
+        <div className="glass rounded-[20px] p-4 sm:p-5">
           <p className="eyebrow mb-3 text-white/80">Transcript diff</p>
-          <p className="flex flex-wrap gap-2 text-lg">
+          <p className="flex flex-wrap gap-1.5 text-base sm:gap-2 sm:text-lg">
             {targetWords.map((w) => {
-              const hit = saidWords.includes(
-                w.toLowerCase().replace(/[^a-z']/g, ""),
-              );
+              const hit = saidWords.includes(w.toLowerCase().replace(/[^a-z']/g, ""));
               return (
                 <span
                   key={w}
                   className={
-                    hit
-                      ? "rounded bg-done/25 px-2"
-                      : "rounded bg-alert-high/30 px-2 line-through"
+                    hit ? "rounded bg-done/25 px-2" : "rounded bg-alert-high/30 px-2 line-through"
                   }
                 >
                   {w}
@@ -171,7 +172,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
               );
             })}
           </p>
-          <p className="mt-3 font-mono text-xs uppercase tracking-[0.14em] text-white/70">
+          <p className="mt-3 break-words font-mono text-[0.65rem] uppercase tracking-[0.1em] text-white/70 sm:text-xs sm:tracking-[0.14em]">
             Heard: {transcript || "nothing recognised"}
           </p>
         </div>
@@ -179,20 +180,16 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
 
       {error && <p className="text-base text-alert-mid">{error}</p>}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap">
         {phase !== "recording" && (
           <PrimaryButton onClick={begin}>
             {phase === "done" ? "Record again" : "Check"}
           </PrimaryButton>
         )}
-        {phase === "recording" && (
-          <PrimaryButton disabled>Recording… 8s</PrimaryButton>
-        )}
-        <SecondaryButton onClick={() => speak(SPEECH_PHRASE)}>
-          Hear the phrase
-        </SecondaryButton>
+        {phase === "recording" && <PrimaryButton disabled>Recording… 8s</PrimaryButton>}
+        <SecondaryButton onClick={() => speak(SPEECH_PHRASE)}>Hear the phrase</SecondaryButton>
       </div>
-      <p className="font-mono text-xs uppercase tracking-[0.14em] text-white/70">
+      <p className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-white/70 sm:text-xs sm:tracking-[0.14em]">
         Audio stays on this device. Nothing is uploaded.
       </p>
     </div>

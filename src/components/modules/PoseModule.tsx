@@ -24,9 +24,7 @@ export function PoseModule({
 }: ModuleProps & { variant: "balance" | "arms" }) {
   const { videoRef, ready, error, start, stop } = useCamera(facing);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [phase, setPhase] = useState<"idle" | "loading" | "running" | "done">(
-    "idle",
-  );
+  const [phase, setPhase] = useState<"idle" | "loading" | "running" | "done">("idle");
   const [remaining, setRemaining] = useState(10);
   const [live, setLive] = useState<{ left: number; right: number }>({
     left: 0,
@@ -50,9 +48,12 @@ export function PoseModule({
       ? "Stand still with your arms at your sides for ten seconds. Sit if standing is unsafe."
       : "Hold both arms straight out in front of you, palms up, and close your eyes for ten seconds.";
 
-  useEffect(() => () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    },
+    [],
+  );
 
   const draw = (landmarks: { x: number; y: number }[]) => {
     const canvas = canvasRef.current;
@@ -72,9 +73,7 @@ export function PoseModule({
     const lm = lmRef.current;
     if (video && lm && video.readyState >= 2) {
       const res = lm.detectForVideo(video, performance.now());
-      const pts = res.landmarks?.[0] as
-        | { x: number; y: number }[]
-        | undefined;
+      const pts = res.landmarks?.[0] as { x: number; y: number }[] | undefined;
       if (pts && pts.length > 28) {
         draw(pts);
         const d = dataRef.current;
@@ -87,14 +86,9 @@ export function PoseModule({
           const lh = pts[23]!;
           const rh = pts[24]!;
           d.mids.push((ls.x + rs.x + lh.x + rh.x) / 4);
-          d.tilts.push(
-            (Math.atan2(rs.y - ls.y, rs.x - ls.x) * 180) / Math.PI,
-          );
+          d.tilts.push((Math.atan2(rs.y - ls.y, rs.x - ls.x) * 180) / Math.PI);
         } else {
-          d.armLength = Math.max(
-            0.1,
-            Math.hypot(ls.x - lw.x, ls.y - lw.y),
-          );
+          d.armLength = Math.max(0.1, Math.hypot(ls.x - lw.x, ls.y - lw.y));
           if (d.leftStart === null) {
             d.leftStart = lw.y - ls.y;
             d.rightStart = rw.y - rs.y;
@@ -117,9 +111,7 @@ export function PoseModule({
     if (variant === "balance") {
       const mids = d.mids;
       const mean = mids.reduce((a, b) => a + b, 0) / (mids.length || 1);
-      const sd = Math.sqrt(
-        mids.reduce((a, b) => a + (b - mean) ** 2, 0) / (mids.length || 1),
-      );
+      const sd = Math.sqrt(mids.reduce((a, b) => a + (b - mean) ** 2, 0) / (mids.length || 1));
       const sway = mids.length ? sd / d.shoulderWidth : 0;
       const tilt = d.tilts.length
         ? Math.max(...d.tilts.map((t) => Math.abs(Math.abs(t) - 180) % 180))
@@ -144,11 +136,7 @@ export function PoseModule({
           ? "unchecked"
           : asym >= ARM_ASYM_POSITIVE
             ? "positive"
-            : statusFromThresholds(
-                worst,
-                ARM_DRIFT_POSITIVE,
-                ARM_DRIFT_UNCERTAIN,
-              );
+            : statusFromThresholds(worst, ARM_DRIFT_POSITIVE, ARM_DRIFT_UNCERTAIN);
       onMeasured(status, [
         est("Left arm drift", leftDrift.toFixed(2)),
         est("Right arm drift", rightDrift.toFixed(2)),
@@ -194,18 +182,8 @@ export function PoseModule({
   return (
     <div className="space-y-5">
       <Reticle>
-        <video
-          ref={videoRef}
-          muted
-          playsInline
-          className="size-full scale-x-[-1] object-cover"
-        />
-        <canvas
-          ref={canvasRef}
-          width={480}
-          height={600}
-          className="absolute inset-0 size-full"
-        />
+        <video ref={videoRef} muted playsInline className="size-full scale-x-[-1] object-cover" />
+        <canvas ref={canvasRef} width={480} height={600} className="absolute inset-0 size-full" />
         {!ready && (
           <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-base text-white/80">
             {error ?? "Stand back so your shoulders and hands are in frame."}
@@ -231,7 +209,7 @@ export function PoseModule({
         </div>
       )}
 
-      <p className="text-base text-white/90">
+      <p className="text-sm text-white/90 sm:text-base">
         {phase === "running"
           ? `Hold… ${remaining}s`
           : phase === "done"
@@ -239,15 +217,13 @@ export function PoseModule({
             : instruction}
       </p>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap">
         {phase === "idle" || phase === "loading" ? (
           <PrimaryButton onClick={begin} disabled={phase === "loading"}>
             {phase === "loading" ? "Starting…" : "Check"}
           </PrimaryButton>
         ) : null}
-        <SecondaryButton onClick={() => speak(instruction)}>
-          Replay instruction
-        </SecondaryButton>
+        <SecondaryButton onClick={() => speak(instruction)}>Replay instruction</SecondaryButton>
       </div>
     </div>
   );

@@ -1,12 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import {
-  GlassCard,
-  PrimaryButton,
-  SecondaryButton,
-  StatusChip,
-} from "@/components/ui-kit";
+import { GlassCard, PrimaryButton, SecondaryButton, StatusChip } from "@/components/ui-kit";
 import { ObserverPanel } from "@/components/ObserverPanel";
 import { FaceModule } from "@/components/modules/FaceModule";
 import { PoseModule } from "@/components/modules/PoseModule";
@@ -55,12 +50,8 @@ function ModuleScreen() {
   const elapsed = useElapsed(session.onsetRecordedAt);
 
   const existing = session.results[letter];
-  const [measured, setMeasured] = useState<SignStatus>(
-    existing?.measured ?? "unchecked",
-  );
-  const [measurements, setMeasurements] = useState<Measurement[]>(
-    existing?.measurements ?? [],
-  );
+  const [measured, setMeasured] = useState<SignStatus>(existing?.measured ?? "unchecked");
+  const [measurements, setMeasurements] = useState<Measurement[]>(existing?.measurements ?? []);
   const [observer, setObserver] = useState<Record<string, boolean | null>>(
     existing?.observer ?? {},
   );
@@ -104,16 +95,15 @@ function ModuleScreen() {
     [letter]: { measured, measurements, observer },
   });
 
-  const onsetLabel =
-    ONSET_OPTIONS.find((o) => o.key === session.onset)?.label ?? "not recorded";
+  const onsetLabel = ONSET_OPTIONS.find((o) => o.key === session.onset)?.label ?? "not recorded";
 
   const facing = session.mode === "other" ? "environment" : "user";
 
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="title-light text-5xl sm:text-6xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+          <h1 className="title-light text-page">
             {info.label.charAt(0) + info.label.slice(1).toLowerCase()}
           </h1>
           {status !== "unchecked" && <StatusChip status={status} />}
@@ -122,7 +112,7 @@ function ModuleScreen() {
         {offer && (
           <Link
             to="/emergency"
-            className="block rounded-[8px] bg-alert-high px-6 py-4 text-base font-extrabold uppercase tracking-wide text-white"
+            className="block rounded-[8px] bg-alert-high px-5 py-4 text-sm font-extrabold uppercase tracking-wide text-white sm:px-6 sm:text-base"
           >
             Warning sign flagged — open emergency action
           </Link>
@@ -133,25 +123,26 @@ function ModuleScreen() {
           {letter === "B" && (
             <PoseModule onMeasured={onMeasured} facing={facing} variant="balance" />
           )}
-          {letter === "A" && (
-            <PoseModule onMeasured={onMeasured} facing={facing} variant="arms" />
-          )}
+          {letter === "A" && <PoseModule onMeasured={onMeasured} facing={facing} variant="arms" />}
           {letter === "E" && <EyesModule onMeasured={onMeasured} facing={facing} />}
           {letter === "S" && <SpeechModule onMeasured={onMeasured} facing={facing} />}
           {letter === "T" && (
             <div className="space-y-4">
               <p className="eyebrow text-white/80">Time since onset</p>
-              <p className="display-xl text-6xl">{elapsed}</p>
+              <p className="display-xl text-metric">{elapsed}</p>
               <p className="text-white/90">
                 Symptoms started: <strong>{onsetLabel}</strong>
               </p>
               <p className="text-white/90">
-                Treatment options depend on how long ago symptoms began — this is
-                why the clock matters more than any other number here.
+                Treatment options depend on how long ago symptoms began — this is why the clock
+                matters more than any other number here.
               </p>
               <ul className="space-y-2 text-white/90">
                 {(["B", "E", "F", "A", "S"] as Letter[]).map((l) => (
-                  <li key={l} className="flex items-center justify-between gap-4">
+                  <li
+                    key={l}
+                    className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+                  >
                     <span>{byLetter(l).label}</span>
                     <StatusChip status={resolveSign(session.results[l])} />
                   </li>
@@ -171,11 +162,14 @@ function ModuleScreen() {
           )}
 
           {measurements.length > 0 && (
-            <ul className="space-y-2 border-t border-white/20 pt-5">
+            <ul className="space-y-3 border-t border-white/20 pt-5">
               {measurements.map((m) => (
-                <li key={m.label} className="flex flex-wrap justify-between gap-3">
-                  <span className="text-white/80">{m.label}</span>
-                  <span className="font-mono text-sm">{m.value}</span>
+                <li
+                  key={m.label}
+                  className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3"
+                >
+                  <span className="text-sm text-white/80 sm:text-base">{m.label}</span>
+                  <span className="font-mono text-xs sm:text-sm">{m.value}</span>
                 </li>
               ))}
             </ul>
@@ -191,15 +185,14 @@ function ModuleScreen() {
           />
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <SecondaryButton onClick={() => navigate({ to: "/hub" })}>
             Back to all checks
           </SecondaryButton>
           <PrimaryButton
             onClick={() => {
               commit();
-              if (nextLetter)
-                navigate({ to: "/check/$letter", params: { letter: nextLetter } });
+              if (nextLetter) navigate({ to: "/check/$letter", params: { letter: nextLetter } });
               else navigate({ to: "/results" });
             }}
           >

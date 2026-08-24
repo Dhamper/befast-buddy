@@ -51,25 +51,25 @@ function Consent() {
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl space-y-6">
-        <h1 className="title-light text-4xl sm:text-5xl">Before we start</h1>
+        <h1 className="title-light text-page">Before we start</h1>
         <GlassCard className="space-y-5">
-          <p className="flex gap-4 text-white/90">
-            <Camera aria-hidden className="mt-1 size-6 shrink-0" />
-            The camera is used to look for facial asymmetry, arm drift, postural
-            sway and eyelid or gaze differences.
+          <p className="flex gap-3 text-white/90 sm:gap-4">
+            <Camera aria-hidden className="mt-1 size-5 shrink-0 sm:size-6" />
+            The camera is used to look for facial asymmetry, arm drift, postural sway and eyelid or
+            gaze differences.
           </p>
-          <p className="flex gap-4 text-white/90">
-            <Mic aria-hidden className="mt-1 size-6 shrink-0" />
-            The microphone is used to compare a spoken phrase with a target
-            phrase for slurring and word-finding trouble.
+          <p className="flex gap-3 text-white/90 sm:gap-4">
+            <Mic aria-hidden className="mt-1 size-5 shrink-0 sm:size-6" />
+            The microphone is used to compare a spoken phrase with a target phrase for slurring and
+            word-finding trouble.
           </p>
-          <p className="flex gap-4 text-white/90">
-            <ShieldCheck aria-hidden className="mt-1 size-6 shrink-0" />
-            All processing happens on this device. No video, audio or image is
-            uploaded or stored anywhere else.
+          <p className="flex gap-3 text-white/90 sm:gap-4">
+            <ShieldCheck aria-hidden className="mt-1 size-5 shrink-0 sm:size-6" />
+            All processing happens on this device. No video, audio or image is uploaded or stored
+            anywhere else.
           </p>
         </GlassCard>
-        <div className="flex flex-wrap gap-4">
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
           <PrimaryButton onClick={request}>Allow and continue</PrimaryButton>
           <SecondaryButton
             onClick={() => {

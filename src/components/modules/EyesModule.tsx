@@ -37,10 +37,13 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
   const lmRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
 
-  useEffect(() => () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    [],
+  );
 
   const showTarget = (i: number) => {
     if (i >= POSITIONS.length) {
@@ -81,15 +84,11 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
     if (video && lm && video.readyState >= 2) {
       const res = lm.detectForVideo(video, performance.now());
       const bs = res.faceBlendshapes?.[0]?.categories as
-        | { categoryName: string; score: number }[]
-        | undefined;
+        { categoryName: string; score: number }[] | undefined;
       if (bs) {
-        const get = (n: string) =>
-          bs.find((c) => c.categoryName === n)?.score ?? 0;
+        const get = (n: string) => bs.find((c) => c.categoryName === n)?.score ?? 0;
         const lid = Math.abs(get("eyeBlinkLeft") - get("eyeBlinkRight"));
-        const gaze = Math.abs(
-          get("eyeLookOutLeft") - get("eyeLookOutRight"),
-        );
+        const gaze = Math.abs(get("eyeLookOutLeft") - get("eyeLookOutRight"));
         setLidAsym(Math.min(1, lid + gaze * 0.5));
       }
     }
@@ -127,10 +126,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
     onMeasured(status, [
       est("Missed targets — left field", `${misses.left} of 4`),
       est("Missed targets — right field", `${misses.right} of 4`),
-      est(
-        "Eyelid / gaze asymmetry",
-        lidAsym === null ? "not measured" : lidAsym.toFixed(2),
-      ),
+      est("Eyelid / gaze asymmetry", lidAsym === null ? "not measured" : lidAsym.toFixed(2)),
     ]);
     setStage("done");
   };
@@ -143,7 +139,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
             <div className="absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
             {visible && (
               <div
-                className="absolute size-8 rounded-md bg-primary"
+                className="absolute size-6 rounded-md bg-primary sm:size-8"
                 style={{
                   left: `${POSITIONS[index]!.x}%`,
                   top: `${POSITIONS[index]!.y}%`,
@@ -151,7 +147,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
                 }}
               />
             )}
-            <p className="absolute bottom-6 left-0 right-0 px-6 text-center font-mono text-xs uppercase tracking-[0.16em] text-white/80">
+            <p className="absolute bottom-4 left-0 right-0 px-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.12em] text-white/80 sm:bottom-6 sm:px-6 sm:text-xs sm:tracking-[0.16em]">
               Target {Math.min(index + 1, POSITIONS.length)} of {POSITIONS.length}
             </p>
           </div>
@@ -165,8 +161,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
             />
             {!ready && (
               <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-base text-white/80">
-                {error ??
-                  "Two parts: a peripheral field test, then an eyelid and gaze check."}
+                {error ?? "Two parts: a peripheral field test, then an eyelid and gaze check."}
               </div>
             )}
           </>
@@ -185,16 +180,14 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap">
         {stage === "idle" && <PrimaryButton onClick={beginField}>Check</PrimaryButton>}
         {stage === "field" && (
           <PrimaryButton onClick={seen} className="flex-1">
             I see it
           </PrimaryButton>
         )}
-        {stage === "lid" && (
-          <PrimaryButton onClick={finish}>Finish eye check</PrimaryButton>
-        )}
+        {stage === "lid" && <PrimaryButton onClick={finish}>Finish eye check</PrimaryButton>}
         <SecondaryButton
           onClick={() =>
             speak(

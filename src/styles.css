@@ -49,6 +49,32 @@
   --font-display: "Archivo Black", "Inter", sans-serif;
   --font-sans: "Inter", "IBM Plex Sans Thai", sans-serif;
   --font-mono: "Space Mono", ui-monospace, monospace;
+
+  /*
+   * Fluid type scale. Every heading in the app uses one of these instead of a
+   * `text-4xl sm:text-5xl lg:text-6xl` chain, so text grows smoothly between
+   * a 320px phone and a 2560px display with no breakpoint jumps.
+   * The vw term is what scales; the two clamp bounds keep it readable at the
+   * extremes. Min values are chosen so no heading can overflow at 320px.
+   */
+  --text-hero: clamp(3rem, 13vw, 8rem);
+  --text-hero--line-height: 0.86;
+  --text-hero--letter-spacing: -0.03em;
+
+  --text-display: clamp(1.75rem, 6.5vw, 3.5rem);
+  --text-display--line-height: 1;
+
+  --text-page: clamp(1.75rem, 5.5vw, 3rem);
+  --text-page--line-height: 1.1;
+
+  --text-section: clamp(1.375rem, 4vw, 2rem);
+  --text-section--line-height: 1.15;
+
+  --text-metric: clamp(2.25rem, 9vw, 4rem);
+  --text-metric--line-height: 0.9;
+
+  --text-glyph: clamp(2.5rem, 8vw, 3.75rem);
+  --text-glyph--line-height: 0.86;
 }
 
 :root {
@@ -102,6 +128,31 @@
     var(--blue-bright) 42%,
     var(--sky) 100%
   );
+
+  /*
+   * Height budget for a camera/waveform frame. Capped in dvh so the frame plus
+   * its instruction text and action buttons stay on one screen in landscape and
+   * on short viewports, instead of pushing the "Check" button below the fold.
+   */
+  --frame-h: min(62dvh, 30rem);
+
+  /* Measured at runtime by AppShell so nothing hides behind the fixed footer. */
+  --app-footer-h: 5rem;
+
+  /*
+   * Signature stepped corner. Fixed 88x56px ate a quarter of a card's width on
+   * a 320px phone, so the step now scales with the viewport between a legible
+   * minimum and the original deck proportions.
+   */
+  --notch-x: clamp(3rem, 12vw, 5.5rem);
+  --notch-y: clamp(2rem, 7vw, 3.5rem);
+}
+
+/* Landscape phones: give the frame more room by trading height for width. */
+@media (orientation: landscape) and (max-height: 30rem) {
+  :root {
+    --frame-h: 78dvh;
+  }
 }
 
 @layer base {
@@ -119,8 +170,13 @@
     background-color: var(--navy);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-size: 18px;
+    /* Was a flat 18px, which overflowed narrow phones and looked small on
+       large displays. Scales 16 -> 19px across the viewport range. */
+    font-size: clamp(1rem, 0.94rem + 0.3vw, 1.1875rem);
     -webkit-font-smoothing: antialiased;
+    /* Long words (URLs, transcripts, measurement labels) must not force a
+       horizontal scrollbar on a 320px screen. */
+    overflow-wrap: break-word;
   }
 }
 
@@ -135,9 +191,9 @@
 @utility notch-tr {
   clip-path: polygon(
     0 0,
-    calc(100% - 88px) 0,
-    calc(100% - 88px) 56px,
-    100% 56px,
+    calc(100% - var(--notch-x)) 0,
+    calc(100% - var(--notch-x)) var(--notch-y),
+    100% var(--notch-y),
     100% 100%,
     0 100%
   );
@@ -148,23 +204,53 @@
     0 0,
     100% 0,
     100% 100%,
-    88px 100%,
-    88px calc(100% - 56px),
-    0 calc(100% - 56px)
+    var(--notch-x) 100%,
+    var(--notch-x) calc(100% - var(--notch-y)),
+    0 calc(100% - var(--notch-y))
   );
+}
+
+/*
+ * Camera / waveform frame. Width is capped so that height (width * 5/4) never
+ * exceeds --frame-h, which keeps the exact 4:5 aspect ratio intact at every
+ * size — the pose-landmark canvas overlay is drawn in that ratio and would
+ * misalign if the box were allowed to letterbox instead.
+ */
+@utility media-frame {
+  width: 100%;
+  max-width: min(100%, calc(var(--frame-h) * 4 / 5));
+  margin-inline: auto;
+  aspect-ratio: 4 / 5;
+}
+
+/* min-h-screen equivalent that ignores mobile browser chrome. */
+@utility min-h-app {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 @utility eyebrow {
   font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 0.22em;
-  font-size: 0.8rem;
+  /* Wide tracking is the deck's look but pushes labels past narrow columns;
+     both tracking and size ease off on small screens. */
+  letter-spacing: 0.16em;
+  font-size: 0.7rem;
+}
+
+@media (width >= 40rem) {
+  .eyebrow {
+    letter-spacing: 0.22em;
+    font-size: 0.8rem;
+  }
 }
 
 @utility display-xl {
   font-family: var(--font-display);
   letter-spacing: -0.03em;
   line-height: 0.86;
+  /* Archivo Black is very wide; allow it to shrink rather than overflow. */
+  overflow-wrap: anywhere;
 }
 
 @utility title-light {
