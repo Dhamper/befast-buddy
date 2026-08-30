@@ -1,109 +1,106 @@
 # BEFAST AI — Conclusion
 
-## 1. Summary of the work
+## 1. Conclusion
 
-BEFAST AI is a browser-based prototype that guides a user through the six
-BE-FAST stroke warning signs. Balance, Eyes, Face and Arms are measured from
-MediaPipe pose- and face-landmark streams; Speech is assessed by comparing a Web
-Speech API transcript against a fixed target phrase; Time is not sensed but
-recorded from an onset question and carried as a running clock into a responder
-handoff summary. Scoring is rule-based rather than learned: fifteen thresholds
-in a single module map continuous measures onto four per-sign states, and an
-observer questionnaire serves as both fallback and override. The system is
-biased toward false alarms — one uncertain sign opens the emergency route.
+The integration of the individual BEFAST components allows the system to perform
+a more comprehensive preliminary assessment than relying on a single symptom.
+Information obtained from Balance, Eyes, Face, Arms and Speech, together with
+symptom onset time, is combined to produce an overall screening result. The
+combination rule is deliberately conservative: a single sign judged present, or
+merely uncertain, is sufficient to escalate the whole assessment and open the
+emergency pathway, so the system is biased toward false alarms rather than
+missed detections.
 
-Camera analysis is genuinely local; frames are never transmitted. The claim of
-wholly on-device processing shown in the interface is nevertheless inaccurate for
-Speech, because the Web Speech API transcribes through a vendor cloud service in
-every browser that implements it. Model weights and the WASM runtime are also
-fetched from public CDNs on first use.
+The prototype demonstrates the feasibility of integrating multiple forms of
+data — video frames, still images, audio and reported symptom information — into
+a single AI-assisted BEFAST screening application. The assistance is twofold:
+pretrained machine-learning models supply the low-level measurements, in the
+form of facial and postural landmarks and a speech transcript, while an explicit
+rule layer converts those measurements into a per-sign judgement. This
+multimodal approach may be useful because stroke can present with different
+combinations of symptoms among individuals, and because a sign that one modality
+cannot capture may still be reported through the observer questionnaire, which
+overrides the automated result when the two disagree.
 
-## 2. Accuracy has not been measured
+Overall, the project demonstrates the feasibility of combining the BEFAST
+principle with artificial intelligence to create an accessible preliminary
+stroke-screening application that runs entirely in a web browser without an
+application server. Further development should focus on assembling a labelled
+dataset, validating the system against clinically appropriate reference data,
+calibrating the decision thresholds to improve sensitivity and specificity, and
+evaluating the application under realistic conditions. With appropriate clinical
+validation, the BEFAST AI concept may contribute to faster recognition of
+suspected stroke and encourage timely access to emergency medical care.
 
-The accuracy of this prototype is unknown and no claim is made about it. The
-thresholds were chosen by inspection and the source declares them unvalidated;
-there is no labelled dataset, no reference standard and no automated test suite.
-The interface therefore reports categorical urgency tiers rather than a
-probability, and tags every displayed figure a prototype estimate. Those fifteen
-thresholds are also not the whole decision surface: feature weights, the
-ten-second hold, the 2.2-second target exposure and the eight-second recording
-window are undocumented constants inside the modules.
+## 2. Present validation status
 
-## 3. Construct validity must be established first
+No accuracy has yet been established, and none is claimed. The fifteen decision
+thresholds were selected by inspection and are declared unvalidated in the
+source; there is no labelled dataset, no clinical reference standard and no
+automated test suite. The application therefore reports categorical urgency
+tiers rather than a probability, and labels every displayed figure a prototype
+estimate. The thresholds are also not the complete decision surface: feature
+weights, the ten-second hold, the 2.2-second target exposure and the
+eight-second recording window are undocumented constants inside the modules.
 
-Review of the feature extraction found defects that would bias any clinical
-study and should be corrected before recruitment. Arm drift is divided by an arm
-length recomputed on the final frame, so as the arm falls the divisor shrinks and
-the normalised drift inflates; only the first and last frames contribute, making
-a drift that recovers within the hold invisible, and the comparison is signed, so
-upward drift can never trip a threshold. Postural sway is a standard deviation
-normalised by the last frame's shoulder width, diluting a single large lurch. The
-eyelid and gaze figure is whatever the final animation frame produced, with no
-accumulation, so an ordinary blink can determine the result. Transcript accuracy
-is order-insensitive bag-of-words matching, so a scrambled utterance of the
-correct words scores 1.0, and pauses are counted only when voice resumes, so
-trailing silence is never counted. The scored facial asymmetry index omits the
-mouth-frown term that the live on-screen meter includes.
-
-## 4. How accuracy should be measured
+## 3. Recommended evaluation methodology
 
 **Reference standard.** Ground truth should be the discharge diagnosis
-established by neuroimaging and neurologist assessment; a lower-cost first study
-may substitute concurrent NIHSS or FAST-ED scoring by a certified examiner.
-Labels are required per sign, not only per patient.
+established by neuroimaging and neurologist assessment; a lower-cost initial
+study may substitute concurrent NIHSS or FAST-ED scoring by a certified
+examiner. Because each sign is judged separately, labels are required per sign
+and not only per participant.
 
-**Study design.** A prospective paired-comparison study in an emergency
-department, with the application and the reference standard blinded to each
-other. Recruitment must include stroke mimics — Bell's palsy, migraine, seizure,
-hypoglycaemia — and healthy controls; specificity estimated from a stroke-only
-cohort is meaningless.
+**Study design.** A prospective paired-comparison study, with the application
+and the reference standard blinded to each other. Recruitment should include
+stroke mimics such as Bell's palsy, migraine, seizure and hypoglycaemia
+alongside healthy controls, since specificity estimated from a stroke-only
+cohort is uninformative.
 
 **Primary metrics.** Sensitivity, specificity, PPV and NPV with 95% confidence
-intervals, per sign and for the screen as a whole, from a 2x2 contingency table.
-For an instrument whose output is "call emergency services", sensitivity is the
-quantity to maximise: a false negative is the harmful error, whereas a false
-positive costs one avoidable ambulance call.
+intervals, reported per sign and for the screen as a whole. For an application
+whose output is a recommendation to call emergency services, sensitivity is the
+quantity to prioritise, as a missed detection is the more harmful error.
 
-**Threshold selection.** The continuous features should be swept across ROC
+**Threshold calibration.** The continuous features should be swept across ROC
 curves, with AUC reported and operating points fixed at a pre-specified minimum
-sensitivity rather than by eye. Three output tiers imply two thresholds per sign,
-so an explicit misclassification-cost criterion is required.
+sensitivity rather than chosen by inspection. Three output tiers imply two
+thresholds per sign, so an explicit misclassification-cost criterion is needed.
 
-**Agreement and reliability.** Cohen's kappa against clinician judgement and
-between observers answering the questionnaire; Bland-Altman analysis of the
-continuous measures against manual annotation; test-retest repeatability; and
-inter-device variance across handsets, lighting and camera distance, since
-landmark quality depends on all three.
+**Reliability.** Cohen's kappa against clinician judgement and between observers
+completing the questionnaire; Bland-Altman comparison of the continuous measures
+against manual annotation; test-retest repeatability; and inter-device variance
+across handsets, lighting and camera distance, since landmark quality depends on
+all three. Subgroup analysis by skin tone, age, eyewear, facial hair, seated
+posture and language is also required.
 
-**Power and subgroups.** The cohort should be sized for a target confidence
-interval on sensitivity, with subgroup analysis by skin tone, age, eyewear,
-facial hair, seated posture and language.
+## 4. Measurement issues to resolve first
 
-## 5. Software prerequisites
+Review of the feature extraction identified issues that would bias a validation
+study before recruitment. Arm drift is divided by an arm length recomputed on
+the final frame, so as the arm falls the divisor shrinks and the normalised
+drift inflates; only the first and last frames contribute, and the comparison is
+signed, so upward drift cannot register. Postural sway is a standard deviation
+normalised by the last frame's shoulder width, which dilutes a single large
+lurch. The eyelid and gaze figure is taken from whichever animation frame
+happens to be last, so an ordinary blink can determine the result. Transcript
+accuracy is order-insensitive word matching, so a scrambled utterance of the
+correct words scores full marks. Separately, each measurement is stored as a
+formatted display string with the underlying number discarded, which prevents
+any later recalibration; numeric feature logging, a consented export path and an
+offline replay harness are prerequisites for the study above.
 
-Each measurement is formatted into a display string and the underlying number
-discarded; at most twenty archived sessions are held in browser storage, and
-there is no consented export path. Evaluation therefore requires numeric feature
-logging, an export mechanism, an offline replay harness that re-runs the scoring
-functions over recorded media so thresholds can be re-swept without
-re-recruiting, and unit tests around the decision logic.
+## 5. Limitations
 
-## 6. Limitations
-
-A single camera yields 2D landmarks that only approximate 3D motion, degrading
-with poor lighting, oblique angles and distance. No service worker is present,
-so despite an installable manifest the application cannot run offline. Speech
-recognition is absent in Firefox and inconsistent on iOS Safari, in which case
-the sign falls back to the questionnaire. The target phrase is English with the
-recogniser fixed to en-US, and would score healthy Thai speakers as impaired.
-BE-FAST does not capture every posterior-circulation presentation. This is not a
+A single camera yields two-dimensional landmarks that only approximate
+three-dimensional motion, and quality degrades with poor lighting, oblique
+angles and distance. Camera frames are never transmitted, but speech
+transcription is performed by a browser service that sends audio to the vendor,
+and the machine-learning runtime and model weights are retrieved from public
+content delivery networks on first use, so the application requires network
+access and cannot operate offline. Speech recognition is unavailable in Firefox
+and inconsistent on iOS Safari, in which case the sign falls back to the
+questionnaire; the target phrase is English with the recogniser fixed to en-US
+and would score healthy Thai speakers as impaired. BEFAST does not capture every
+posterior-circulation presentation. The application is a screening aid and not a
 diagnostic device.
-
-## 7. Conclusion
-
-The prototype demonstrates that a complete BE-FAST pathway — five sensed signs
-plus onset timing, an auditable rule-based scorer and a fail-safe bias toward
-escalation — can run in a browser with no application server. It remains an
-engineering demonstration rather than a validated instrument: the defects in
-Section 3 must be corrected and the study in Section 4 conducted before any
-statement about its accuracy is possible.

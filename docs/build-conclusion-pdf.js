@@ -106,8 +106,8 @@ function drawTitle(doc, text, y) {
   let cursor = doc.y + 2;
   doc.font("Helvetica").fontSize(8).fillColor("#4a5a6a");
   doc.text(
-    "Rule-based screening for the BE-FAST stroke warning signs — " +
-      "evaluation methodology, limitations and future work",
+    "Multimodal AI-assisted screening for the BE-FAST stroke warning signs — " +
+      "feasibility, evaluation methodology and limitations",
     M.left,
     cursor,
     { width, align: "left" },
