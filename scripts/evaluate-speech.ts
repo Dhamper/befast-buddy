@@ -15,9 +15,13 @@
  *
  * e.g. bun run scripts/evaluate-speech.ts 50 Xenova/whisper-base.en
  *
- * Expects scripts/eval-data/torgo-shard0.parquet (all "healthy") and
- * torgo-shard3.parquet (all "dysarthria") already downloaded — see
- * scripts/eval-data/README.md.
+ * Pools sentence-length clips across all 4 downloaded shards (labels aren't
+ * evenly split per shard — see scripts/eval-data/README.md) and stride-samples
+ * up to samplesPerClass from each class. Pass a samplesPerClass larger than a
+ * class's available pool to use everything in that class.
+ *
+ * Expects scripts/eval-data/torgo-shard{0,1,2,3}.parquet already downloaded —
+ * see scripts/eval-data/README.md.
  */
 import { parquetReadObjects } from "hyparquet";
 import { readFileSync } from "fs";
@@ -46,23 +50,35 @@ type TorgoRow = {
   duration: number;
 };
 
-async function loadShard(path: string, count: number): Promise<TorgoRow[]> {
-  const buf = readFileSync(path);
-  const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-  const all = (await parquetReadObjects({ file: arrayBuffer })) as TorgoRow[];
-  // Evenly spaced picks, not the first N, so a handful of speakers/sessions
-  // grouped at the start of the shard don't dominate the sample.
+const SHARD_PATHS = [0, 1, 2, 3].map((n) => `./scripts/eval-data/torgo-shard${n}.parquet`);
+
+/** Labels aren't evenly split per shard (0 & 1 are all-healthy, 3 is all-dysarthria,
+    2 is mixed) — pool every shard before sampling by class. */
+async function loadAllSentenceRows(): Promise<TorgoRow[]> {
+  const shards = await Promise.all(
+    SHARD_PATHS.map(async (path) => {
+      const buf = readFileSync(path);
+      const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+      return (await parquetReadObjects({ file: arrayBuffer })) as TorgoRow[];
+    }),
+  );
+  const all = shards.flat();
   // Restricted to multi-word sentences, matching how the app actually uses
   // this sign (reading a fixed phrase, not isolated words) — Whisper-tiny
   // also hallucinates badly on TORGO's single-word clips regardless.
   // (Restricting further to the close head-worn mic, ruling out the
   // far-field array mic's room noise/reverb as the culprit, was tried and
-  // made no difference to the result below — so both mic types are kept.)
-  const sentences = all.filter((r) => r.transcription.trim().split(/\s+/).length >= 4);
-  const stride = Math.max(1, Math.floor(sentences.length / count));
-  const picked: TorgoRow[] = [];
-  for (let i = 0; i < sentences.length && picked.length < count; i += stride) {
-    picked.push(sentences[i]!);
+  // made no difference to the result — so both mic types are kept.)
+  return all.filter((r) => r.transcription.trim().split(/\s+/).length >= 4);
+}
+
+/** Evenly spaced picks, not the first N, so a handful of speakers/sessions
+    grouped together in the source data don't dominate the sample. */
+function stridePick<T>(items: T[], count: number): T[] {
+  const stride = Math.max(1, Math.floor(items.length / count));
+  const picked: T[] = [];
+  for (let i = 0; i < items.length && picked.length < count; i += stride) {
+    picked.push(items[i]!);
   }
   return picked;
 }
@@ -70,14 +86,17 @@ async function loadShard(path: string, count: number): Promise<TorgoRow[]> {
 async function main() {
   const samplesPerClass = Number(process.argv[2] ?? 15);
   const whisperModel = process.argv[3] ?? "Xenova/whisper-tiny.en";
-  console.log(`Loading ${samplesPerClass} samples per class from TORGO shards...`);
+  console.log(`Loading up to ${samplesPerClass} samples per class from all TORGO shards...`);
 
-  const [healthy, dysarthric] = await Promise.all([
-    loadShard("./scripts/eval-data/torgo-shard0.parquet", samplesPerClass),
-    loadShard("./scripts/eval-data/torgo-shard3.parquet", samplesPerClass),
-  ]);
+  const sentences = await loadAllSentenceRows();
+  const healthyPool = sentences.filter((r) => r.speech_status === "healthy");
+  const dysarthricPool = sentences.filter((r) => r.speech_status === "dysarthria");
+  const healthy = stridePick(healthyPool, samplesPerClass);
+  const dysarthric = stridePick(dysarthricPool, samplesPerClass);
   const rows = [...healthy, ...dysarthric];
-  console.log(`Loaded ${healthy.length} healthy + ${dysarthric.length} dysarthric clips.`);
+  console.log(
+    `Loaded ${healthy.length}/${healthyPool.length} healthy + ${dysarthric.length}/${dysarthricPool.length} dysarthric clips.`,
+  );
 
   console.log(`Loading ${whisperModel}...`);
   const transcriber = await pipeline("automatic-speech-recognition", whisperModel, {
