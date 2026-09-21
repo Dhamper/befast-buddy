@@ -143,7 +143,7 @@ function ModuleScreen() {
         <GlassCard className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 sm:gap-5 sm:p-7">
           {(!hasObserver || panel === "check") && (
             <div
-              className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden sm:gap-5"
+              className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto sm:gap-5"
               style={isCamera ? ({ "--frame-h": "min(36dvh, 18rem)" } as CSSProperties) : undefined}
             >
               {letter === "F" && <FaceModule onMeasured={onMeasured} facing={facing} />}
@@ -206,7 +206,7 @@ function ModuleScreen() {
           )}
 
           {hasObserver && panel === "questions" && (
-            <div className="min-h-0 flex-1 overflow-hidden">
+            <div className="min-h-0 flex-1 overflow-y-auto">
               <ObserverPanel info={info} answers={observer} onChange={onObserver} forceOpen />
             </div>
           )}
