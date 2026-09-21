@@ -1,7 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { AppShell } from "@/components/AppShell";
-import { GlassCard, PrimaryButton, SecondaryButton, StatusChip } from "@/components/ui-kit";
+import {
+  GlassCard,
+  PrimaryButton,
+  SecondaryButton,
+  SegmentedTabs,
+  StatusChip,
+} from "@/components/ui-kit";
 import { ObserverPanel } from "@/components/ObserverPanel";
 import { FaceModule } from "@/components/modules/FaceModule";
 import { PoseModule } from "@/components/modules/PoseModule";
@@ -55,6 +61,8 @@ function ModuleScreen() {
   const [observer, setObserver] = useState<Record<string, boolean | null>>(
     existing?.observer ?? {},
   );
+  const forceQuestions = session.mode === "other" || !session.permissions?.camera;
+  const [panel, setPanel] = useState<"check" | "questions">(forceQuestions ? "questions" : "check");
 
   if (!info) return null;
 
@@ -99,11 +107,14 @@ function ModuleScreen() {
 
   const facing = session.mode === "other" ? "environment" : "user";
 
+  const hasObserver = info.observer.length > 0;
+  const isCamera = letter !== "T";
+
   return (
-    <AppShell>
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-          <h1 className="title-light text-page">
+    <AppShell fitViewport>
+      <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-2 sm:gap-4">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 sm:gap-4">
+          <h1 className="title-light text-2xl sm:text-page">
             {info.label.charAt(0) + info.label.slice(1).toLowerCase()}
           </h1>
           {status !== "unchecked" && <StatusChip status={status} />}
@@ -112,84 +123,104 @@ function ModuleScreen() {
         {offer && (
           <Link
             to="/emergency"
-            className="block rounded-[8px] bg-alert-high px-5 py-4 text-sm font-extrabold uppercase tracking-wide text-white sm:px-6 sm:text-base"
+            className="block shrink-0 rounded-[8px] bg-alert-high px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white sm:px-6 sm:py-4 sm:text-base"
           >
             Warning sign flagged — open emergency action
           </Link>
         )}
 
-        <GlassCard className="space-y-5">
-          {letter === "F" && <FaceModule onMeasured={onMeasured} facing={facing} />}
-          {letter === "B" && (
-            <PoseModule onMeasured={onMeasured} facing={facing} variant="balance" />
-          )}
-          {letter === "A" && <PoseModule onMeasured={onMeasured} facing={facing} variant="arms" />}
-          {letter === "E" && <EyesModule onMeasured={onMeasured} facing={facing} />}
-          {letter === "S" && <SpeechModule onMeasured={onMeasured} facing={facing} />}
-          {letter === "T" && (
-            <div className="space-y-4">
-              <p className="eyebrow text-white/80">Time since onset</p>
-              <p className="display-xl text-metric">{elapsed}</p>
-              <p className="text-white/90">
-                Symptoms started: <strong>{onsetLabel}</strong>
-              </p>
-              <p className="text-white/90">
-                Treatment options depend on how long ago symptoms began — this is why the clock
-                matters more than any other number here.
-              </p>
-              <ul className="space-y-2 text-white/90">
-                {(["B", "E", "F", "A", "S"] as Letter[]).map((l) => (
-                  <li
-                    key={l}
-                    className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
-                  >
-                    <span>{byLetter(l).label}</span>
-                    <StatusChip status={resolveSign(session.results[l])} />
-                  </li>
-                ))}
-              </ul>
-              <PrimaryButton
-                onClick={() =>
-                  onMeasured("negative", [
-                    { label: "Time since onset", value: elapsed },
-                    { label: "Reported onset", value: onsetLabel },
-                  ])
-                }
-              >
-                Record time summary
-              </PrimaryButton>
-            </div>
-          )}
-
-          {measurements.length > 0 && (
-            <ul className="space-y-3 border-t border-white/20 pt-5">
-              {measurements.map((m) => (
-                <li
-                  key={m.label}
-                  className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3"
-                >
-                  <span className="text-sm text-white/80 sm:text-base">{m.label}</span>
-                  <span className="font-mono text-xs sm:text-sm">{m.value}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </GlassCard>
-
-        {info.observer.length > 0 && (
-          <ObserverPanel
-            info={info}
-            answers={observer}
-            onChange={onObserver}
-            forceOpen={session.mode === "other" || !session.permissions?.camera}
+        {hasObserver && (
+          <SegmentedTabs
+            options={[
+              { value: "check", label: isCamera ? "Check" : "Time" },
+              { value: "questions", label: "Questions" },
+            ]}
+            value={panel}
+            onChange={setPanel}
           />
         )}
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <SecondaryButton onClick={() => navigate({ to: "/hub" })}>
+        <GlassCard className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 sm:gap-5 sm:p-7">
+          {(!hasObserver || panel === "check") && (
+            <div
+              className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden sm:gap-5"
+              style={isCamera ? ({ "--frame-h": "min(36dvh, 18rem)" } as CSSProperties) : undefined}
+            >
+              {letter === "F" && <FaceModule onMeasured={onMeasured} facing={facing} />}
+              {letter === "B" && (
+                <PoseModule onMeasured={onMeasured} facing={facing} variant="balance" />
+              )}
+              {letter === "A" && (
+                <PoseModule onMeasured={onMeasured} facing={facing} variant="arms" />
+              )}
+              {letter === "E" && <EyesModule onMeasured={onMeasured} facing={facing} />}
+              {letter === "S" && <SpeechModule onMeasured={onMeasured} facing={facing} />}
+              {letter === "T" && (
+                <div className="flex min-h-0 flex-1 flex-col justify-evenly gap-2 overflow-hidden">
+                  <div className="shrink-0">
+                    <p className="eyebrow text-white/80">Time since onset</p>
+                    <p className="display-xl text-metric">{elapsed}</p>
+                  </div>
+                  <p className="shrink-0 text-sm text-white/90 sm:text-base">
+                    Symptoms started: <strong>{onsetLabel}</strong>
+                  </p>
+                  <ul className="min-h-0 flex-1 space-y-1 overflow-hidden text-sm text-white/90 sm:space-y-2 sm:text-base">
+                    {(["B", "E", "F", "A", "S"] as Letter[]).map((l) => (
+                      <li
+                        key={l}
+                        className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1"
+                      >
+                        <span>{byLetter(l).label}</span>
+                        <StatusChip status={resolveSign(session.results[l])} />
+                      </li>
+                    ))}
+                  </ul>
+                  <PrimaryButton
+                    className="shrink-0 min-h-11 sm:min-h-16"
+                    onClick={() =>
+                      onMeasured("negative", [
+                        { label: "Time since onset", value: elapsed },
+                        { label: "Reported onset", value: onsetLabel },
+                      ])
+                    }
+                  >
+                    Record time summary
+                  </PrimaryButton>
+                </div>
+              )}
+
+              {isCamera && measurements.length > 0 && (
+                <ul className="shrink-0 space-y-1 border-t border-white/20 pt-3 text-sm sm:space-y-2 sm:pt-5 sm:text-base">
+                  {measurements.map((m) => (
+                    <li
+                      key={m.label}
+                      className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3"
+                    >
+                      <span className="text-white/80">{m.label}</span>
+                      <span className="font-mono text-xs sm:text-sm">{m.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {hasObserver && panel === "questions" && (
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <ObserverPanel info={info} answers={observer} onChange={onObserver} forceOpen />
+            </div>
+          )}
+        </GlassCard>
+
+        <div className="flex shrink-0 flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <SecondaryButton
+            className="min-h-11 sm:min-h-16"
+            onClick={() => navigate({ to: "/hub" })}
+          >
             Back to all checks
           </SecondaryButton>
           <PrimaryButton
+            className="min-h-11 sm:min-h-16"
             onClick={() => {
               commit();
               if (nextLetter) navigate({ to: "/check/$letter", params: { letter: nextLetter } });

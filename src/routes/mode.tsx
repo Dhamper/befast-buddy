@@ -40,10 +40,10 @@ function ModeSelect() {
   const navigate = useNavigate();
 
   return (
-    <AppShell showSession={false}>
-      <div className="mx-auto max-w-4xl space-y-6">
-        <h1 className="title-light text-page">Who is being checked?</h1>
-        <div className="grid gap-5 sm:grid-cols-2">
+    <AppShell showSession={false} fitViewport>
+      <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-3 sm:gap-6">
+        <h1 className="title-light shrink-0 text-2xl sm:text-page">Who is being checked?</h1>
+        <div className="grid min-h-0 flex-1 gap-4 sm:grid-cols-2 sm:gap-5">
           {CARDS.map((c) => (
             <button
               key={c.mode}
@@ -52,12 +52,12 @@ function ModeSelect() {
                 setMode(c.mode);
                 navigate({ to: "/onset" });
               }}
-              className="text-left"
+              className="min-h-0 text-left"
             >
-              <GlassCard className="h-full transition-colors hover:bg-white/15">
+              <GlassCard className="flex h-full min-h-0 flex-col justify-center overflow-hidden transition-colors hover:bg-white/15">
                 <h2 className="display-xl text-section">{c.title}</h2>
-                <p className="mt-3 text-white/85 sm:mt-4">{c.body}</p>
-                <p className="eyebrow mt-6 text-primary-foreground/90 sm:mt-8">Select →</p>
+                <p className="mt-3 text-sm text-white/85 sm:mt-4 sm:text-base">{c.body}</p>
+                <p className="eyebrow mt-4 text-primary-foreground/90 sm:mt-8">Select →</p>
               </GlassCard>
             </button>
           ))}

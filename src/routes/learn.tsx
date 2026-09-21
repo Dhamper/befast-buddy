@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { GlassCard, PrimaryLink } from "@/components/ui-kit";
+import { GlassCard, PrimaryLink, SegmentedTabs } from "@/components/ui-kit";
 import { LETTERS } from "@/lib/content";
+import type { Letter } from "@/lib/scoring";
+
+type Tab = Letter | "why";
 
 export const Route = createFileRoute("/learn")({
   head: () => ({
@@ -23,47 +27,54 @@ export const Route = createFileRoute("/learn")({
   component: Learn,
 });
 
-function Learn() {
-  return (
-    <AppShell showSession={false}>
-      <div className="mx-auto max-w-5xl space-y-6">
-        <h1 className="title-light text-page">Learn more</h1>
-        <GlassCard>
-          <p className="eyebrow mb-3 text-white/80">What a stroke is</p>
-          <p className="text-white/90">
-            A stroke happens when blood flow to part of the brain is blocked or a vessel bursts.
-            Brain cells in the affected area start dying within minutes, so the sooner treatment
-            starts, the more brain is saved. BE-FAST is the standard way to spot the warning signs
-            quickly.
-          </p>
-        </GlassCard>
+const TABS: { value: Tab; label: string }[] = [
+  ...LETTERS.map((l) => ({ value: l.letter as Tab, label: l.letter })),
+  { value: "why", label: "Why" },
+];
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {LETTERS.map((l) => (
-            <GlassCard key={l.letter} className="flex gap-4 sm:gap-5">
-              <span className="display-xl text-glyph shrink-0 text-white">{l.letter}</span>
+function Learn() {
+  const [tab, setTab] = useState<Tab>("B");
+  const active = LETTERS.find((l) => l.letter === tab);
+
+  return (
+    <AppShell showSession={false} fitViewport>
+      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-2 sm:gap-4">
+        <h1 className="title-light shrink-0 text-2xl sm:text-page">Learn more</h1>
+        <p className="shrink-0 text-sm text-white/90 sm:text-base">
+          A stroke happens when blood flow to part of the brain is blocked or a vessel bursts.
+          BE-FAST is the standard way to spot the warning signs quickly.
+        </p>
+
+        <SegmentedTabs options={TABS} value={tab} onChange={setTab} />
+
+        <GlassCard className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden">
+          {active ? (
+            <div className="flex items-center gap-4 sm:gap-5">
+              <span className="display-xl text-glyph shrink-0 text-white">{active.letter}</span>
               <div>
-                <h2 className="eyebrow mb-2 text-white/85">{l.label}</h2>
+                <h2 className="eyebrow mb-2 text-white/85">{active.label}</h2>
                 <ul className="list-disc space-y-1 pl-4 text-sm text-white/90 sm:pl-5 sm:text-base">
-                  {l.bullets.map((b) => (
+                  {active.bullets.map((b) => (
                     <li key={b}>{b}</li>
                   ))}
                 </ul>
               </div>
-            </GlassCard>
-          ))}
-        </div>
-
-        <GlassCard>
-          <p className="eyebrow mb-3 text-white/80">Why minutes matter</p>
-          <p className="text-white/90">
-            Clot-dissolving treatment and clot removal are only possible inside a limited window
-            from the moment symptoms started. That is why the very first thing this prototype asks
-            is when the symptoms began — and why it never tells you to wait and see.
-          </p>
+            </div>
+          ) : (
+            <>
+              <p className="eyebrow mb-3 text-white/80">Why minutes matter</p>
+              <p className="text-sm text-white/90 sm:text-base">
+                Clot-dissolving treatment and clot removal are only possible inside a limited window
+                from the moment symptoms started. That is why the very first thing this prototype
+                asks is when the symptoms began — and why it never tells you to wait and see.
+              </p>
+            </>
+          )}
         </GlassCard>
 
-        <PrimaryLink to="/mode">Start a check</PrimaryLink>
+        <PrimaryLink to="/mode" className="shrink-0">
+          Start a check
+        </PrimaryLink>
       </div>
     </AppShell>
   );
