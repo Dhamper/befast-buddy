@@ -11,7 +11,9 @@
  * at all", using whatever transcript a reasonable ASR produces.
  *
  * Usage:
- *   bun run scripts/evaluate-speech.ts [samplesPerClass]
+ *   bun run scripts/evaluate-speech.ts [samplesPerClass] [whisperModel]
+ *
+ * e.g. bun run scripts/evaluate-speech.ts 50 Xenova/whisper-base.en
  *
  * Expects scripts/eval-data/torgo-shard0.parquet (all "healthy") and
  * torgo-shard3.parquet (all "dysarthria") already downloaded — see
@@ -34,7 +36,6 @@ import {
 } from "../src/lib/evaluation";
 import { decodeWavPcm, resampleLinear, toBytes } from "./lib/wav";
 
-const WHISPER_MODEL = "Xenova/whisper-tiny.en";
 const TARGET_SAMPLE_RATE = 16000;
 
 type TorgoRow = {
@@ -68,6 +69,7 @@ async function loadShard(path: string, count: number): Promise<TorgoRow[]> {
 
 async function main() {
   const samplesPerClass = Number(process.argv[2] ?? 15);
+  const whisperModel = process.argv[3] ?? "Xenova/whisper-tiny.en";
   console.log(`Loading ${samplesPerClass} samples per class from TORGO shards...`);
 
   const [healthy, dysarthric] = await Promise.all([
@@ -77,8 +79,8 @@ async function main() {
   const rows = [...healthy, ...dysarthric];
   console.log(`Loaded ${healthy.length} healthy + ${dysarthric.length} dysarthric clips.`);
 
-  console.log(`Loading ${WHISPER_MODEL}...`);
-  const transcriber = await pipeline("automatic-speech-recognition", WHISPER_MODEL, {
+  console.log(`Loading ${whisperModel}...`);
+  const transcriber = await pipeline("automatic-speech-recognition", whisperModel, {
     dtype: "fp32",
   });
 
