@@ -74,33 +74,36 @@ across handsets, lighting and camera distance, since landmark quality depends on
 all three. Subgroup analysis by skin tone, age, eyewear, facial hair, seated
 posture and language is also required.
 
-## 4. Measurement issues to resolve first
+## 4. Measurement issues
 
-Review of the feature extraction identified issues that would bias a validation
-study before recruitment. Arm drift is divided by an arm length recomputed on
-the final frame, so as the arm falls the divisor shrinks and the normalised
-drift inflates; only the first and last frames contribute, and the comparison is
-signed, so upward drift cannot register. Postural sway is a standard deviation
-normalised by the last frame's shoulder width, which dilutes a single large
-lurch. The eyelid and gaze figure is taken from whichever animation frame
-happens to be last, so an ordinary blink can determine the result. Transcript
-accuracy is order-insensitive word matching, so a scrambled utterance of the
-correct words scores full marks. Separately, each measurement is stored as a
-formatted display string with the underlying number discarded, which prevents
-any later recalibration; numeric feature logging, a consented export path and an
-offline replay harness are prerequisites for the study above.
+Review of the feature extraction found four issues that would bias a
+validation study before recruitment, all since fixed: arm drift's divisor was
+recomputed every frame instead of fixed at the start, and its comparison was
+signed so upward drift never registered; postural sway's divisor had the same
+recomputation flaw, and a whole-hold standard deviation diluted a single large
+lurch; the eyelid/gaze figure was whichever frame happened to be last, so a
+blink could decide it; transcript accuracy was order-insensitive, so a
+scrambled utterance scored full marks. One issue remains open: each
+measurement is stored as a display string with the number discarded, blocking
+later recalibration from real app usage.
 
-## 5. Limitations
+## 5. Preliminary proxy-dataset evaluation
+
+Lacking clinical data, two signs were checked against public proxies instead
+(methodology and caveats: `scripts/eval-data/README.md`). Speech vs. TORGO
+dysarthric speech (n=562): AUC 0.608. Face vs. PalsyNet Bell's-palsy video
+(n=49, all of it): AUC 0.468, chance level. Neither meets screening-grade
+accuracy (~0.8+) or substitutes for section 3's study.
+
+## 6. Limitations
 
 A single camera yields two-dimensional landmarks that only approximate
-three-dimensional motion, and quality degrades with poor lighting, oblique
-angles and distance. Camera frames are never transmitted, but speech
-transcription is performed by a browser service that sends audio to the vendor,
-and the machine-learning runtime and model weights are retrieved from public
-content delivery networks on first use, so the application requires network
-access and cannot operate offline. Speech recognition is unavailable in Firefox
-and inconsistent on iOS Safari, in which case the sign falls back to the
-questionnaire; the target phrase is English with the recogniser fixed to en-US
-and would score healthy Thai speakers as impaired. BEFAST does not capture every
-posterior-circulation presentation. The application is a screening aid and not a
-diagnostic device.
+three-dimensional motion, degrading with poor lighting, oblique angles and
+distance. Camera frames are never transmitted, but speech transcription is
+performed by a browser service that sends audio to the vendor, and the ML
+runtime and weights are fetched from public CDNs on first use, requiring
+network access. Speech recognition is unavailable in Firefox and inconsistent
+on iOS Safari, falling back to the questionnaire; the target phrase is
+English at en-US and would score healthy Thai speakers as impaired. BEFAST
+misses some posterior-circulation presentations. The application is a
+screening aid, not a diagnostic device.
