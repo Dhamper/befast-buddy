@@ -41,8 +41,15 @@ export function PoseModule({
     rightStart: null as number | null,
     leftLast: 0,
     rightLast: 0,
-    shoulderWidth: 0.2,
-    armLength: 0.25,
+    /* Frozen on the first frame of the hold — recomputing these every frame
+       let the divisor drift with the very motion it was meant to normalise
+       (e.g. a falling arm shrinking its own arm-length divisor). */
+    shoulderWidthBase: null as number | null,
+    armLengthBase: null as number | null,
+    /* Peak |drift| seen at any point in the hold, not just start vs. final
+       frame, and unsigned so upward drift registers as readily as downward. */
+    leftPeakDrift: 0,
+    rightPeakDrift: 0,
   });
 
   const instruction =
@@ -86,24 +93,30 @@ export function PoseModule({
         const rs = pts[12]!;
         const lw = pts[15]!;
         const rw = pts[16]!;
-        d.shoulderWidth = Math.max(0.05, Math.hypot(ls.x - rs.x, ls.y - rs.y));
         if (variant === "balance") {
+          if (d.shoulderWidthBase === null) {
+            d.shoulderWidthBase = Math.max(0.05, Math.hypot(ls.x - rs.x, ls.y - rs.y));
+          }
           const lh = pts[23]!;
           const rh = pts[24]!;
           d.mids.push((ls.x + rs.x + lh.x + rh.x) / 4);
           d.tilts.push((Math.atan2(rs.y - ls.y, rs.x - ls.x) * 180) / Math.PI);
         } else {
-          d.armLength = Math.max(0.1, Math.hypot(ls.x - lw.x, ls.y - lw.y));
+          if (d.armLengthBase === null) {
+            d.armLengthBase = Math.max(0.1, Math.hypot(ls.x - lw.x, ls.y - lw.y));
+          }
           if (d.leftStart === null) {
             d.leftStart = lw.y - ls.y;
             d.rightStart = rw.y - rs.y;
           }
           d.leftLast = lw.y - ls.y;
           d.rightLast = rw.y - rs.y;
-          setLive({
-            left: (d.leftLast - (d.leftStart ?? 0)) / d.armLength,
-            right: (d.rightLast - (d.rightStart ?? 0)) / d.armLength,
-          });
+          const armLength = d.armLengthBase;
+          const leftDrift = (d.leftLast - (d.leftStart ?? 0)) / armLength;
+          const rightDrift = (d.rightLast - (d.rightStart ?? 0)) / armLength;
+          d.leftPeakDrift = Math.max(d.leftPeakDrift, Math.abs(leftDrift));
+          d.rightPeakDrift = Math.max(d.rightPeakDrift, Math.abs(rightDrift));
+          setLive({ left: leftDrift, right: rightDrift });
         }
       }
     }
@@ -120,7 +133,12 @@ export function PoseModule({
       const mids = d.mids;
       const mean = mids.reduce((a, b) => a + b, 0) / (mids.length || 1);
       const sd = Math.sqrt(mids.reduce((a, b) => a + (b - mean) ** 2, 0) / (mids.length || 1));
-      const sway = mids.length ? sd / d.shoulderWidth : 0;
+      const width = d.shoulderWidthBase ?? 0.2;
+      const sway = mids.length ? sd / width : 0;
+      /* A brief large lurch averages away in the whole-hold standard
+         deviation, so the peak single-frame excursion decides the status —
+         the SD is kept only as a supporting figure. */
+      const peakSway = mids.length ? Math.max(...mids.map((m) => Math.abs(m - mean))) / width : 0;
       const tilt = d.tilts.length
         ? Math.max(...d.tilts.map((t) => Math.abs(Math.abs(t) - 180) % 180))
         : 0;
@@ -129,14 +147,15 @@ export function PoseModule({
           ? "unchecked"
           : tilt >= SHOULDER_TILT_POSITIVE
             ? "positive"
-            : statusFromThresholds(sway, SWAY_POSITIVE, SWAY_UNCERTAIN);
+            : statusFromThresholds(peakSway, SWAY_POSITIVE, SWAY_UNCERTAIN);
       onMeasured(status, [
-        est("Lateral sway (of shoulder width)", sway.toFixed(2)),
+        est("Peak lateral sway (of shoulder width)", peakSway.toFixed(2)),
+        est("Average lateral sway, SD (of shoulder width)", sway.toFixed(2)),
         est("Shoulder-line tilt", `${tilt.toFixed(1)}°`),
       ]);
     } else {
-      const leftDrift = (d.leftLast - (d.leftStart ?? 0)) / d.armLength;
-      const rightDrift = (d.rightLast - (d.rightStart ?? 0)) / d.armLength;
+      const leftDrift = d.leftPeakDrift;
+      const rightDrift = d.rightPeakDrift;
       const worst = Math.max(leftDrift, rightDrift);
       const asym = Math.abs(leftDrift - rightDrift);
       const status =
@@ -146,8 +165,8 @@ export function PoseModule({
             ? "positive"
             : statusFromThresholds(worst, ARM_DRIFT_POSITIVE, ARM_DRIFT_UNCERTAIN);
       onMeasured(status, [
-        est("Left arm drift", leftDrift.toFixed(2)),
-        est("Right arm drift", rightDrift.toFixed(2)),
+        est("Peak left arm drift", leftDrift.toFixed(2)),
+        est("Peak right arm drift", rightDrift.toFixed(2)),
         est("Side-to-side difference", asym.toFixed(2)),
       ]);
     }
@@ -166,8 +185,10 @@ export function PoseModule({
       rightStart: null,
       leftLast: 0,
       rightLast: 0,
-      shoulderWidth: 0.2,
-      armLength: 0.25,
+      shoulderWidthBase: null,
+      armLengthBase: null,
+      leftPeakDrift: 0,
+      rightPeakDrift: 0,
     };
     try {
       lmRef.current = await loadPoseLandmarker();
