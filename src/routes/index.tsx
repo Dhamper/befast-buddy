@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import heroImage from "@/assets/befast-hero.jpg";
+import logoAsset from "@/assets/befast-logo.png.asset.json";
 import { AppShell } from "@/components/AppShell";
 import { PrimaryLink, SecondaryLink } from "@/components/ui-kit";
 
@@ -61,10 +62,15 @@ function Landing() {
 
           <div className="relative flex min-h-[min(78dvh,42rem)] flex-col justify-between gap-8 p-6 sm:p-8 lg:gap-10 lg:p-12">
             <div className="max-w-2xl">
-              <h1 className="display-xl text-hero">
-                BEFAST
-                <br />
-                AI
+              <h1>
+                <span className="sr-only">BEFAST AI</span>
+                <img
+                  src={logoAsset.url}
+                  alt=""
+                  width={512}
+                  height={512}
+                  className="size-44 rounded-[22px] object-contain shadow-2xl sm:size-56 lg:size-64"
+                />
               </h1>
               <p className="eyebrow mt-5 text-white/85 sm:mt-6">
                 Fast and easy stroke detection tool

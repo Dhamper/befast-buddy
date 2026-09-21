@@ -5,6 +5,7 @@ import { DISCLAIMER, EMERGENCY } from "@/theme";
 import { useElapsed, useSession } from "@/lib/session";
 import { Decor } from "@/components/ui-kit";
 import { cn } from "@/lib/utils";
+import logoAsset from "@/assets/befast-logo.png.asset.json";
 
 export function EmergencyCallButton({ className }: { className?: string }) {
   return (
@@ -64,8 +65,14 @@ export function AppShell({
     >
       <Decor />
       <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-6 sm:py-5 lg:px-10">
-        <Link to="/" className="title-light text-xl sm:text-2xl lg:text-3xl">
-          BEFAST AI
+        <Link to="/" aria-label="BEFAST AI home" className="block shrink-0">
+          <img
+            src={logoAsset.url}
+            alt="BEFAST AI"
+            width={512}
+            height={512}
+            className="size-14 rounded-[8px] object-contain sm:size-16"
+          />
         </Link>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {started && (
