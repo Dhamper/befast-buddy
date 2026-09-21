@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Reticle, PrimaryButton, SecondaryButton } from "@/components/ui-kit";
 import { useCamera } from "@/lib/useCamera";
 import { loadFaceLandmarker } from "@/lib/vision";
+import { lidGazeAsymmetry, median } from "@/lib/faceFeatures";
 import {
   EYE_FIELD_MISSES_POSITIVE,
   EYE_FIELD_MISSES_UNCERTAIN,
@@ -37,6 +38,9 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
   const rafRef = useRef<number | null>(null);
   const lmRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
+  /* Sampled every frame during the lid stage; finish() takes the median so a
+     single blink can't decide the result the way the last live frame could. */
+  const lidSamplesRef = useRef<number[]>([]);
 
   useEffect(
     () => () => {
@@ -90,10 +94,9 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
       const bs = res.faceBlendshapes?.[0]?.categories as
         { categoryName: string; score: number }[] | undefined;
       if (bs) {
-        const get = (n: string) => bs.find((c) => c.categoryName === n)?.score ?? 0;
-        const lid = Math.abs(get("eyeBlinkLeft") - get("eyeBlinkRight"));
-        const gaze = Math.abs(get("eyeLookOutLeft") - get("eyeLookOutRight"));
-        setLidAsym(Math.min(1, lid + gaze * 0.5));
+        const value = lidGazeAsymmetry(bs);
+        lidSamplesRef.current.push(value);
+        setLidAsym(value);
       }
     }
     rafRef.current = requestAnimationFrame(lidLoop);
@@ -101,6 +104,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
 
   const startLid = async () => {
     setStage("lid");
+    lidSamplesRef.current = [];
     await start();
     try {
       lmRef.current = await loadFaceLandmarker();
@@ -123,16 +127,17 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
         : worstSide >= EYE_FIELD_MISSES_UNCERTAIN
           ? "uncertain"
           : "negative";
+    const lidMedian = median(lidSamplesRef.current);
     const lidStatus: SignStatus =
-      lidAsym === null
+      lidMedian === null
         ? "unchecked"
-        : statusFromThresholds(lidAsym, LID_ASYM_POSITIVE, LID_ASYM_UNCERTAIN);
+        : statusFromThresholds(lidMedian, LID_ASYM_POSITIVE, LID_ASYM_UNCERTAIN);
     const rank = { positive: 3, uncertain: 2, negative: 1, unchecked: 0 };
     const status = rank[fieldStatus] >= rank[lidStatus] ? fieldStatus : lidStatus;
     onMeasured(status, [
       est("Missed targets — left field", `${misses.left} of 4`),
       est("Missed targets — right field", `${misses.right} of 4`),
-      est("Eyelid / gaze asymmetry", lidAsym === null ? "not measured" : lidAsym.toFixed(2)),
+      est("Eyelid / gaze asymmetry", lidMedian === null ? "not measured" : lidMedian.toFixed(2)),
     ]);
     setStage("done");
   };

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Reticle, PrimaryButton, SecondaryButton } from "@/components/ui-kit";
 import { useCamera } from "@/lib/useCamera";
 import { loadFaceLandmarker } from "@/lib/vision";
+import { faceAsymmetry } from "@/lib/faceFeatures";
 import { FACE_ASYM_POSITIVE, FACE_ASYM_UNCERTAIN, statusFromThresholds } from "@/lib/scoring";
 import { speak, stopSpeaking } from "@/lib/speak";
 import { est, type ModuleProps } from "./types";
@@ -20,7 +21,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
   const [frames, setFrames] = useState<string[]>([]);
   const landmarkerRef = useRef<any>(null);
   const rafRef = useRef<number | null>(null);
-  const peakRef = useRef({ smile: 0, brow: 0 });
+  const peakRef = useRef({ smile: 0, frown: 0, brow: 0 });
 
   useEffect(
     () => () => {
@@ -38,12 +39,9 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
       const bs = res.faceBlendshapes?.[0]?.categories as
         { categoryName: string; score: number }[] | undefined;
       if (bs) {
-        const get = (n: string) => bs.find((c) => c.categoryName === n)?.score ?? 0;
-        const smile = Math.abs(get("mouthSmileLeft") - get("mouthSmileRight"));
-        const frown = Math.abs(get("mouthFrownLeft") - get("mouthFrownRight"));
-        const brow = Math.abs(get("browOuterUpLeft") - get("browOuterUpRight"));
-        const index = Math.min(1, smile * 1.6 + frown * 0.8 + brow * 0.8);
+        const { smile, frown, brow, index } = faceAsymmetry(bs);
         peakRef.current.smile = Math.max(peakRef.current.smile, smile);
+        peakRef.current.frown = Math.max(peakRef.current.frown, frown);
         peakRef.current.brow = Math.max(peakRef.current.brow, brow);
         setAsym(index);
       }
@@ -71,7 +69,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
     try {
       landmarkerRef.current = await loadFaceLandmarker();
       rafRef.current = requestAnimationFrame(loop);
-      peakRef.current = { smile: 0, brow: 0 };
+      peakRef.current = { smile: 0, frown: 0, brow: 0 };
       setStep(0);
       speak(STEPS[0]!);
     } catch {
@@ -88,11 +86,15 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
       speak(STEPS[n]!);
       return;
     }
-    const peak = Math.min(1, peakRef.current.smile * 1.6 + peakRef.current.brow * 0.8);
+    const peak = Math.min(
+      1,
+      peakRef.current.smile * 1.6 + peakRef.current.frown * 0.8 + peakRef.current.brow * 0.8,
+    );
     const status = statusFromThresholds(peak, FACE_ASYM_POSITIVE, FACE_ASYM_UNCERTAIN);
     onMeasured(status, [
       est("Left/right asymmetry index", peak.toFixed(2)),
       est("Peak smile asymmetry", peakRef.current.smile.toFixed(2)),
+      est("Peak frown asymmetry", peakRef.current.frown.toFixed(2)),
       est("Peak brow asymmetry", peakRef.current.brow.toFixed(2)),
     ]);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);

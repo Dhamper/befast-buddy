@@ -155,7 +155,13 @@ export function statusFromThresholds(
   return "negative";
 }
 
-/** Word-level accuracy of a transcript against a target phrase. */
+/**
+ * Word-level accuracy of a transcript against a target phrase, as the length
+ * of their longest common (in-order) subsequence over the target length. A
+ * scrambled utterance of the right words no longer scores full marks — a
+ * plain bag-of-words match couldn't tell "the quick brown fox" from
+ * "fox brown the quick".
+ */
 export function transcriptAccuracy(target: string, said: string): number {
   const norm = (s: string) =>
     s
@@ -166,14 +172,14 @@ export function transcriptAccuracy(target: string, said: string): number {
   const t = norm(target);
   const s = norm(said);
   if (t.length === 0) return 0;
-  const pool = [...s];
-  let hits = 0;
-  for (const w of t) {
-    const i = pool.indexOf(w);
-    if (i >= 0) {
-      hits++;
-      pool.splice(i, 1);
+  const dp: number[][] = Array.from({ length: t.length + 1 }, () =>
+    new Array<number>(s.length + 1).fill(0),
+  );
+  for (let i = 1; i <= t.length; i++) {
+    for (let j = 1; j <= s.length; j++) {
+      dp[i]![j] =
+        t[i - 1] === s[j - 1] ? dp[i - 1]![j - 1]! + 1 : Math.max(dp[i - 1]![j]!, dp[i]![j - 1]!);
     }
   }
-  return hits / t.length;
+  return dp[t.length]![s.length]! / t.length;
 }
