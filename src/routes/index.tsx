@@ -28,8 +28,8 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <AppShell showSession={false}>
-      <div className="mx-auto max-w-6xl pt-2 sm:pt-4">
+    <AppShell showSession={false} fitViewport>
+      <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center py-2 sm:py-4">
         {/*
           One card, with the artwork as its own background rather than a second
           card beside it. @container makes the card the sizing reference for
@@ -40,7 +40,7 @@ function Landing() {
           rather than a deliberate silhouette now that the card carries
           artwork. The motif still appears on the background Decor shapes.
         */}
-        <section className="@container relative isolate overflow-hidden rounded-[22px] sm:rounded-[32px]">
+        <section className="@container relative isolate min-h-0 flex-1 overflow-hidden rounded-[22px] sm:rounded-[32px]">
           <img
             src={heroImage}
             alt="Illustration of a head in profile with a glowing neural network and a clock, representing time-critical stroke care"
@@ -59,7 +59,7 @@ function Landing() {
             className="absolute inset-0 bg-gradient-to-b from-black/80 via-navy/70 to-black/85 lg:bg-gradient-to-r lg:from-black/90 lg:via-navy/60 lg:to-transparent"
           />
 
-          <div className="relative flex min-h-[min(78dvh,42rem)] flex-col justify-between gap-8 p-6 sm:p-8 lg:gap-10 lg:p-12">
+          <div className="relative flex size-full flex-col justify-between gap-4 overflow-hidden p-5 sm:gap-8 sm:p-8 lg:gap-10 lg:p-12">
             <div className="max-w-2xl">
               <h1 className="display-xl text-hero text-white">
                 BEFAST <span className="text-sky">AI</span>

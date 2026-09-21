@@ -28,14 +28,14 @@ function Onset() {
   const navigate = useNavigate();
 
   return (
-    <AppShell showSession={false}>
-      <div className="mx-auto max-w-3xl space-y-6">
-        <h1 className="title-light text-page">When did the symptoms start?</h1>
-        <p className="text-white/85">
+    <AppShell showSession={false} fitViewport>
+      <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-2 sm:gap-6">
+        <h1 className="title-light shrink-0 text-2xl sm:text-page">When did the symptoms start?</h1>
+        <p className="shrink-0 text-sm text-white/85 sm:text-base">
           Or when was the person last known to be completely normal? This is the one fact the
-          hospital needs most — answer it before anything else.
+          hospital needs most.
         </p>
-        <GlassCard className="space-y-3">
+        <GlassCard className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden sm:gap-3">
           {ONSET_OPTIONS.map((o) => (
             <button
               key={o.key}
@@ -44,7 +44,7 @@ function Onset() {
                 setOnset(o.key);
                 navigate({ to: "/consent" });
               }}
-              className="min-h-16 w-full rounded-[8px] border border-white/30 bg-white/10 px-4 py-3 text-left text-base hover:bg-white/20 sm:px-6 sm:text-lg"
+              className="min-h-0 w-full flex-1 rounded-[8px] border border-white/30 bg-white/10 px-4 text-left text-sm hover:bg-white/20 sm:px-6 sm:text-lg"
             >
               {o.label}
             </button>

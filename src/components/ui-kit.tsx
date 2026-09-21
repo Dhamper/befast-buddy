@@ -135,6 +135,62 @@ export function StatusChip({ status }: { status: SignStatus }) {
   );
 }
 
+/**
+ * Horizontal picker used to swap between bounded panels instead of stacking
+ * them — the way every "long content" page (Results, Learn, Emergency,
+ * per-letter checks) stays on one screen without ever needing its own
+ * scrollbar: only the active panel is rendered, so total height is bounded
+ * by whichever panel is largest, not by their sum.
+ */
+export function SegmentedTabs<T extends string>({
+  options,
+  value,
+  onChange,
+  className,
+}: {
+  options: { value: T; label: string; dot?: SignStatus }[];
+  value: T;
+  onChange: (value: T) => void;
+  className?: string;
+}) {
+  const dotClass: Record<SignStatus, string> = {
+    positive: "bg-alert-high",
+    uncertain: "bg-alert-mid",
+    negative: "bg-done",
+    unchecked: "bg-white/40",
+  };
+  return (
+    <div
+      role="tablist"
+      className={cn("glass flex shrink-0 gap-1 rounded-[8px] p-1 sm:gap-1.5", className)}
+    >
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(o.value)}
+            className={cn(
+              "flex min-h-9 flex-1 basis-0 items-center justify-center gap-1.5 rounded-[6px] px-1 font-mono text-[0.65rem] uppercase tracking-[0.1em] sm:min-h-11 sm:gap-2 sm:text-xs sm:tracking-[0.14em]",
+              active
+                ? "bg-primary text-primary-foreground"
+                : "text-foreground/80 hover:bg-white/15",
+            )}
+          >
+            {o.dot && (
+              <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", dotClass[o.dot])} />
+            )}
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /** White corner brackets + centred edge ticks, as on the Face slide. */
 export function Reticle({ children, midline }: { children: ReactNode; midline?: boolean }) {
   const corner = "pointer-events-none absolute h-7 w-7 border-white border-[3px] sm:h-10 sm:w-10";
