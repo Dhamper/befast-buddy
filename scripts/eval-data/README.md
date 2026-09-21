@@ -154,6 +154,33 @@ app itself uses — not proof the app's approach fails on its own protocol.
 - **IEEE DataPort "Facial Paralysis Dataset"** — appears to be precomputed
   dense-trajectory features, not raw video; requires an IEEE account; not
   independently verified as usable for this project's feature extraction.
+- **`QuanDuc/FacialPalsyData` (Hugging Face)** — https://huggingface.co/datasets/QuanDuc/FacialPalsyData
+  — structurally the best-labelled option found: 14,391 images split by
+  region (Eye / Eyebrow / Mouth) and by 4-level severity (Mild / Moderate /
+  Moderate-severe / Severe), gated but accessible via a self-serve "agree to
+  share contact info" click (no email/institution needed) rather than YFP's
+  multi-day process. **But treat with real suspicion before using it**: no
+  license, no README describing collection methodology or how severity was
+  graded, no stated patient consent, zero citing papers found, and the
+  uploader account was created days before this was written with only this
+  one upload and no other footprint. That's the same red-flag shape as the
+  Kaggle dataset above (unverifiable provenance), just not yet confirmed
+  either way — it may be perfectly legitimate research data with sparse
+  metadata, or it may not be. **Also has no healthy/normal images at all**
+  (every category is a palsy severity grade), so it can only support a
+  severity-correlation check among affected samples, not a PalsyNet-style
+  affected-vs-unaffected AUC. If access is requested and granted, inspect the
+  images themselves for consistency (watermarks, mixed provenance, obviously
+  stock/celebrity photos) before relying on any result from it.
+- **MEEI Facial Palsy Standard Set** (Massachusetts Eye and Ear / Sir Charles
+  Bell Society) — real, peer-reviewed (Greene et al., *Laryngoscope* 2020),
+  well-documented, and the only one found with true healthy controls (65
+  photo/video sets, 10 normal + palsy patients, flaccid and synkinetic
+  equally represented). **Not realistically accessible for this project**:
+  distributed only to Sir Charles Bell Society members, and membership is
+  restricted to healthcare professionals (or trainees with a program
+  director's letter) — https://www.sircharlesbell.com/. Documented here so
+  nobody re-discovers this dead end.
 
 ### Draft request email for YFP access
 
