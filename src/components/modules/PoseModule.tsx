@@ -149,9 +149,9 @@ export function PoseModule({
             ? "positive"
             : statusFromThresholds(peakSway, SWAY_POSITIVE, SWAY_UNCERTAIN);
       onMeasured(status, [
-        est("Peak lateral sway (of shoulder width)", peakSway.toFixed(2)),
-        est("Average lateral sway, SD (of shoulder width)", sway.toFixed(2)),
-        est("Shoulder-line tilt", `${tilt.toFixed(1)}°`),
+        est("Peak lateral sway (of shoulder width)", peakSway.toFixed(2), peakSway),
+        est("Average lateral sway, SD (of shoulder width)", sway.toFixed(2), sway),
+        est("Shoulder-line tilt", `${tilt.toFixed(1)}°`, tilt),
       ]);
     } else {
       const leftDrift = d.leftPeakDrift;
@@ -165,9 +165,9 @@ export function PoseModule({
             ? "positive"
             : statusFromThresholds(worst, ARM_DRIFT_POSITIVE, ARM_DRIFT_UNCERTAIN);
       onMeasured(status, [
-        est("Peak left arm drift", leftDrift.toFixed(2)),
-        est("Peak right arm drift", rightDrift.toFixed(2)),
-        est("Side-to-side difference", asym.toFixed(2)),
+        est("Peak left arm drift", leftDrift.toFixed(2), leftDrift),
+        est("Peak right arm drift", rightDrift.toFixed(2), rightDrift),
+        est("Side-to-side difference", asym.toFixed(2), asym),
       ]);
     }
     stop();

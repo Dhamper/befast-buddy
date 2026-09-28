@@ -31,7 +31,15 @@ export const SPEECH_ACCURACY_UNCERTAIN = 0.85;
 /** Long pauses (>1.2s) inside the recording, as a slurring/word-finding proxy. PROTOTYPE VALUE. */
 export const SPEECH_PAUSES_UNCERTAIN = 2;
 
-export type Measurement = { label: string; value: string };
+export type Measurement = {
+  label: string;
+  /** Display string shown to the user. */
+  value: string;
+  /** The unrounded number behind `value`, kept so thresholds can later be
+   *  recalibrated from real app usage. Absent for non-numeric entries
+   *  (transcript, onset label) and for sessions saved before it existed. */
+  raw?: number;
+};
 
 export type ModuleResult = {
   /** Result from automated measurement only. */

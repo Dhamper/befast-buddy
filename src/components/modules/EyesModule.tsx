@@ -135,9 +135,11 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
     const rank = { positive: 3, uncertain: 2, negative: 1, unchecked: 0 };
     const status = rank[fieldStatus] >= rank[lidStatus] ? fieldStatus : lidStatus;
     onMeasured(status, [
-      est("Missed targets — left field", `${misses.left} of 4`),
-      est("Missed targets — right field", `${misses.right} of 4`),
-      est("Eyelid / gaze asymmetry", lidMedian === null ? "not measured" : lidMedian.toFixed(2)),
+      est("Missed targets — left field", `${misses.left} of 4`, misses.left),
+      est("Missed targets — right field", `${misses.right} of 4`, misses.right),
+      lidMedian === null
+        ? est("Eyelid / gaze asymmetry", "not measured")
+        : est("Eyelid / gaze asymmetry", lidMedian.toFixed(2), lidMedian),
     ]);
     setStage("done");
   };

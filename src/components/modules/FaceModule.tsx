@@ -92,10 +92,10 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
     );
     const status = statusFromThresholds(peak, FACE_ASYM_POSITIVE, FACE_ASYM_UNCERTAIN);
     onMeasured(status, [
-      est("Left/right asymmetry index", peak.toFixed(2)),
-      est("Peak smile asymmetry", peakRef.current.smile.toFixed(2)),
-      est("Peak frown asymmetry", peakRef.current.frown.toFixed(2)),
-      est("Peak brow asymmetry", peakRef.current.brow.toFixed(2)),
+      est("Left/right asymmetry index", peak.toFixed(2), peak),
+      est("Peak smile asymmetry", peakRef.current.smile.toFixed(2), peakRef.current.smile),
+      est("Peak frown asymmetry", peakRef.current.frown.toFixed(2), peakRef.current.frown),
+      est("Peak brow asymmetry", peakRef.current.brow.toFixed(2), peakRef.current.brow),
     ]);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     stop();
