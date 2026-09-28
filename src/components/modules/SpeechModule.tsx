@@ -66,9 +66,9 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
     else status = "negative";
 
     onMeasured(status, [
-      est("Word accuracy vs target phrase", `${Math.round(accuracy * 100)}%`),
-      est("Speaking duration", `${duration.toFixed(1)}s`),
-      est("Long pauses (>1.2s)", String(s.pauses)),
+      est("Word accuracy vs target phrase", `${Math.round(accuracy * 100)}%`, accuracy),
+      est("Speaking duration", `${duration.toFixed(1)}s`, duration),
+      est("Long pauses (>1.2s)", String(s.pauses), s.pauses),
       { label: "Transcript", value: text || "nothing recognised" },
     ]);
     setPhase("done");

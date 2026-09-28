@@ -76,16 +76,16 @@ posture and language is also required.
 
 ## 4. Measurement issues
 
-Review of the feature extraction found four issues that would bias a
+Review of the feature extraction found five issues that would bias a
 validation study before recruitment, all since fixed: arm drift's divisor was
 recomputed every frame instead of fixed at the start, and its comparison was
 signed so upward drift never registered; postural sway's divisor had the same
 recomputation flaw, and a whole-hold standard deviation diluted a single large
 lurch; the eyelid/gaze figure was whichever frame happened to be last, so a
 blink could decide it; transcript accuracy was order-insensitive, so a
-scrambled utterance scored full marks. One issue remains open: each
-measurement is stored as a display string with the number discarded, blocking
-later recalibration from real app usage.
+scrambled utterance scored full marks; and each measurement was stored only as
+a rounded display string, which blocked later recalibration from real app
+usage. The unrounded number is now saved alongside it.
 
 ## 5. Preliminary proxy-dataset evaluation
 
