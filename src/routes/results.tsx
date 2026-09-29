@@ -1,7 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { GlassCard, SecondaryLink, SegmentedTabs, StatusChip } from "@/components/ui-kit";
+import {
+  GlassCard,
+  PrimaryButton,
+  SecondaryLink,
+  SegmentedTabs,
+  StatusChip,
+} from "@/components/ui-kit";
 import { EmergencyCallButton } from "@/components/AppShell";
 import { LETTERS, byLetter } from "@/lib/content";
 import { assess, ONSET_OPTIONS, resolveSign, type Letter } from "@/lib/scoring";
@@ -28,7 +34,8 @@ export const Route = createFileRoute("/results")({
 });
 
 function Results() {
-  const { session, archive } = useSession();
+  const { session, archive, startNew } = useSession();
+  const navigate = useNavigate();
   const elapsed = useElapsed(session.onsetRecordedAt);
   const result = assess(session.results, session.onset);
   const onsetLabel = ONSET_OPTIONS.find((o) => o.key === session.onset)?.label ?? "not recorded";
@@ -55,28 +62,31 @@ function Results() {
   const info = byLetter(letter);
 
   return (
-    <AppShell fitViewport>
+    <AppShell fitViewport backTo="/hub" floatingCall={false}>
       <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-2 sm:gap-4">
-        <h1 className="title-light shrink-0 text-2xl sm:text-page">Result</h1>
+        {/* Visually hidden on phones: the urgency headline right below already
+            says what this page is, and the space goes to the per-sign card. */}
+        <h1 className="title-light sr-only shrink-0 sm:not-sr-only sm:text-page">Result</h1>
 
         <div className={`shrink-0 rounded-[16px] border p-3 sm:rounded-[28px] sm:p-7 ${tint}`}>
-          <p className="eyebrow mb-2 text-white/85 sm:mb-3">Urgency tier</p>
-          <h2 className="display-xl text-2xl sm:text-display">{result.headline}</h2>
+          <p className="eyebrow mb-2 hidden text-white/85 sm:mb-3 sm:block">Urgency tier</p>
+          <h2 className="display-xl text-xl sm:text-display">{result.headline}</h2>
           <p className="mt-2 text-sm text-white/90 sm:mt-4 sm:text-lg">{result.action}</p>
           <p className="mt-1 text-xs text-white/80 sm:mt-2 sm:text-base">
             Time since onset {elapsed} · reported as “{onsetLabel}”
           </p>
-          <div className="mt-3 flex flex-col gap-2 sm:mt-6 sm:flex-row sm:flex-wrap sm:gap-4">
-            <EmergencyCallButton className="min-h-11 justify-center py-2 sm:min-h-12 sm:py-0" />
-            <SecondaryLink to="/emergency" className="min-h-11 sm:min-h-12">
-              Emergency action steps
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:flex sm:flex-wrap sm:gap-4">
+            <EmergencyCallButton className="justify-center px-2 sm:px-6" />
+            <SecondaryLink to="/emergency" className="px-2 sm:px-6">
+              <span className="sm:hidden">Action steps</span>
+              <span className="hidden sm:inline">Emergency action steps</span>
             </SecondaryLink>
           </div>
         </div>
 
         <SegmentedTabs options={tabs} value={letter} onChange={setLetter} />
 
-        <GlassCard className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
+        <GlassCard className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden p-3 sm:gap-3 sm:p-7">
           <div className="flex shrink-0 items-center justify-between gap-4">
             <div className="flex items-center gap-3 sm:gap-4">
               <span className="display-xl text-[2rem] sm:text-4xl">{info.letter}</span>
@@ -126,17 +136,27 @@ function Results() {
           </div>
         </GlassCard>
 
-        <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
-          <SecondaryLink to="/hub" className="min-h-11 sm:min-h-12">
-            Back to checks
+        {/* One row of three: stacking them cost the result card ~100px. */}
+        <div className="grid shrink-0 grid-cols-3 gap-2 sm:gap-4">
+          <SecondaryLink to="/hub" className="px-2 sm:px-6">
+            All checks
           </SecondaryLink>
           <Link
             to="/history"
             onClick={archive}
-            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-5 font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-12 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
+            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-2 text-center font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-12 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
           >
-            Save to history
+            Save<span className="hidden sm:inline">&nbsp;to history</span>
           </Link>
+          <PrimaryButton
+            className="px-2 sm:px-6"
+            onClick={() => {
+              startNew();
+              navigate({ to: "/mode" });
+            }}
+          >
+            New check
+          </PrimaryButton>
         </div>
       </div>
     </AppShell>

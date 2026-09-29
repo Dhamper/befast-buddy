@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { GlassCard, SecondaryButton, StatusChip } from "@/components/ui-kit";
+import { GlassCard, PrimaryButton, SecondaryButton, StatusChip } from "@/components/ui-kit";
 import { byLetter } from "@/lib/content";
 import { ONSET_OPTIONS, resolveSign, type Letter } from "@/lib/scoring";
 import { useSession } from "@/lib/session";
@@ -28,7 +28,9 @@ export const Route = createFileRoute("/history")({
 });
 
 function History() {
-  const { history, clearHistory } = useSession();
+  const { session, history, clearHistory, startNew } = useSession();
+  const navigate = useNavigate();
+  const inProgress = session.onset !== null;
   const [index, setIndex] = useState(0);
   const s = history[Math.min(index, history.length - 1)];
 
@@ -92,11 +94,24 @@ function History() {
           </GlassCard>
         )}
 
-        {history.length > 0 && (
-          <SecondaryButton onClick={clearHistory} className="shrink-0 min-h-11 sm:min-h-12">
-            Clear all data
-          </SecondaryButton>
-        )}
+        {/* History used to be a dead end: the only way out was the wordmark. */}
+        <div className="flex shrink-0 gap-2 sm:gap-4 [&>*]:flex-1">
+          {inProgress ? (
+            <PrimaryButton onClick={() => navigate({ to: "/hub" })}>Continue check</PrimaryButton>
+          ) : (
+            <PrimaryButton
+              onClick={() => {
+                startNew();
+                navigate({ to: "/mode" });
+              }}
+            >
+              New check
+            </PrimaryButton>
+          )}
+          {history.length > 0 && (
+            <SecondaryButton onClick={clearHistory}>Clear all data</SecondaryButton>
+          )}
+        </div>
       </div>
     </AppShell>
   );
