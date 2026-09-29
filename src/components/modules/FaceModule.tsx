@@ -103,7 +103,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 sm:gap-4">
       <Reticle midline>
         <video ref={videoRef} muted playsInline className="size-full scale-x-[-1] object-cover" />
         {!ready && (
@@ -133,7 +133,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
             : "Face check recorded."}
       </p>
 
-      <div className="grid gap-3 sm:flex sm:flex-wrap">
+      <div className="flex shrink-0 gap-2 sm:gap-3 [&>*]:flex-1">
         {step < 0 ? (
           <PrimaryButton onClick={begin} disabled={loading}>
             {loading ? "Starting…" : "Check"}
@@ -144,7 +144,7 @@ export function FaceModule({ onMeasured, facing }: ModuleProps) {
           </PrimaryButton>
         ) : null}
         <SecondaryButton onClick={() => speak(STEPS[Math.max(0, step)] ?? "")}>
-          Replay instruction
+          Replay<span className="hidden sm:inline">&nbsp;instruction</span>
         </SecondaryButton>
       </div>
 

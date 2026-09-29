@@ -151,7 +151,7 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
     .split(/\s+/);
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 sm:gap-4">
       <Reticle>
         {/*
           28 fixed 6px bars plus gaps needed ~280px, which overflowed the ~200px
@@ -200,14 +200,16 @@ export function SpeechModule({ onMeasured }: ModuleProps) {
 
       {error && <p className="text-base text-alert-mid">{error}</p>}
 
-      <div className="grid gap-3 sm:flex sm:flex-wrap">
+      <div className="flex shrink-0 gap-2 sm:gap-3 [&>*]:flex-1">
         {phase !== "recording" && (
           <PrimaryButton onClick={begin}>
             {phase === "done" ? "Record again" : "Check"}
           </PrimaryButton>
         )}
         {phase === "recording" && <PrimaryButton disabled>Recording… 8s</PrimaryButton>}
-        <SecondaryButton onClick={() => speak(SPEECH_PHRASE)}>Hear the phrase</SecondaryButton>
+        <SecondaryButton onClick={() => speak(SPEECH_PHRASE)}>
+          Hear<span className="hidden sm:inline">&nbsp;the</span> phrase
+        </SecondaryButton>
       </div>
       <p className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-white/70 sm:text-xs sm:tracking-[0.14em]">
         Audio stays on this device. Nothing is uploaded.

@@ -38,7 +38,7 @@ function Hub() {
       <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col gap-2 sm:gap-4">
         <div className="flex items-center justify-between gap-3">
           <h1 className="title-light text-2xl sm:text-page">The six checks</h1>
-          <SecondaryLink to="/results" className="min-h-11 shrink-0 px-4 sm:min-h-16 sm:px-8">
+          <SecondaryLink to="/results" className="min-h-11 shrink-0 px-4 sm:min-h-12 sm:px-8">
             Results
           </SecondaryLink>
         </div>

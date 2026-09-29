@@ -27,7 +27,7 @@ export function ObserverPanel({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex min-h-16 w-full items-center justify-between gap-3 text-left sm:gap-4"
+        className="flex min-h-11 sm:min-h-12 w-full items-center justify-between gap-3 text-left sm:gap-4"
       >
         <span className="min-w-0">
           <span className="eyebrow block text-white/80">Observer questions</span>
@@ -42,10 +42,10 @@ export function ObserverPanel({
       </button>
 
       {open && (
-        <ul className="mt-4 space-y-5 sm:mt-5">
+        <ul className="mt-3 space-y-4 sm:mt-5 sm:space-y-5">
           {info.observer.map((q) => (
             <li key={q.id}>
-              <p className="mb-3 text-sm sm:text-base">{q.question}</p>
+              <p className="mb-2 text-sm sm:mb-3 sm:text-base">{q.question}</p>
               {/* basis-0 + tight tracking keeps all three answers on one row
                   down to a 320px screen, where they used to wrap. */}
               <div className="flex gap-2 sm:gap-3">
@@ -58,7 +58,7 @@ export function ObserverPanel({
                       aria-pressed={active}
                       onClick={() => onChange(q.id, o.value)}
                       className={cn(
-                        "min-h-16 min-w-0 flex-1 basis-0 rounded-[8px] border px-2 font-mono text-[0.7rem] uppercase tracking-[0.06em] sm:px-5 sm:text-sm sm:tracking-[0.14em]",
+                        "min-h-11 sm:min-h-12 min-w-0 flex-1 basis-0 rounded-[8px] border px-2 font-mono text-[0.7rem] uppercase tracking-[0.06em] sm:px-5 sm:text-sm sm:tracking-[0.14em]",
                         active
                           ? "border-transparent bg-primary text-primary-foreground"
                           : "border-white/30 bg-white/10 hover:bg-white/20",

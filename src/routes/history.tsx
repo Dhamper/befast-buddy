@@ -93,7 +93,7 @@ function History() {
         )}
 
         {history.length > 0 && (
-          <SecondaryButton onClick={clearHistory} className="shrink-0 min-h-11 sm:min-h-16">
+          <SecondaryButton onClick={clearHistory} className="shrink-0 min-h-11 sm:min-h-12">
             Clear all data
           </SecondaryButton>
         )}

@@ -99,7 +99,7 @@ function Emergency() {
             {result.headline}. Say “possible stroke” and give the onset time.
           </p>
           <div className="mt-2 sm:mt-6">
-            <EmergencyCallButton className="min-h-12 w-full justify-center py-2 text-base sm:min-h-16 sm:py-6 sm:text-2xl" />
+            <EmergencyCallButton className="min-h-12 w-full justify-center py-2 text-base sm:min-h-14 sm:py-3 sm:text-xl" />
           </div>
           <p className="mt-2 font-mono text-[0.6rem] uppercase tracking-[0.1em] sm:mt-3 sm:text-xs sm:tracking-[0.16em]">
             {EMERGENCY.label} · time since onset {elapsed}
@@ -133,21 +133,21 @@ function Emergency() {
         </GlassCard>
 
         <div className="grid shrink-0 gap-2 sm:flex sm:flex-wrap sm:gap-3">
-          <PrimaryButton onClick={copy} className="min-h-11 sm:min-h-16">
+          <PrimaryButton onClick={copy} className="min-h-11 sm:min-h-12">
             {copied ? "Copied" : "Copy text"}
           </PrimaryButton>
-          <SecondaryButton onClick={download} className="min-h-11 sm:min-h-16">
+          <SecondaryButton onClick={download} className="min-h-11 sm:min-h-12">
             Download card
           </SecondaryButton>
           <a
             href="https://www.google.com/maps/search/stroke+hospital+emergency+near+me"
             target="_blank"
             rel="noreferrer"
-            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-5 text-center font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-16 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
+            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-5 text-center font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-12 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
           >
             Find nearest hospital
           </a>
-          <SecondaryLink to="/results" className="min-h-11 sm:min-h-16">
+          <SecondaryLink to="/results" className="min-h-11 sm:min-h-12">
             Back to result
           </SecondaryLink>
         </div>

@@ -1,13 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import {
-  GlassCard,
-  PrimaryButton,
-  SecondaryButton,
-  SegmentedTabs,
-  StatusChip,
-} from "@/components/ui-kit";
+import { GlassCard, PrimaryButton, SegmentedTabs, StatusChip } from "@/components/ui-kit";
 import { ObserverPanel } from "@/components/ObserverPanel";
 import { FaceModule } from "@/components/modules/FaceModule";
 import { PoseModule } from "@/components/modules/PoseModule";
@@ -25,6 +19,9 @@ import {
 import { useElapsed, useSession } from "@/lib/session";
 
 const ORDER: Letter[] = ["B", "E", "F", "A", "S", "T"];
+
+/** Pause after a check finishes so its result is readable before moving on. */
+const ADVANCE_MS = 2500;
 
 export const Route = createFileRoute("/check/$letter")({
   head: ({ params }) => {
@@ -44,6 +41,9 @@ export const Route = createFileRoute("/check/$letter")({
       ],
     };
   },
+  // Without this the screen is reused across letters, so /check/B's result
+  // state leaked into /check/E when advancing.
+  remountDeps: ({ params }) => params,
   component: ModuleScreen,
 });
 
@@ -63,6 +63,21 @@ function ModuleScreen() {
   );
   const forceQuestions = session.mode === "other" || !session.permissions?.camera;
   const [panel, setPanel] = useState<"check" | "questions">(forceQuestions ? "questions" : "check");
+  const [advancing, setAdvancing] = useState(false);
+
+  const idx = ORDER.indexOf(letter);
+  const nextLetter = ORDER[idx + 1];
+
+  /* A finished station moves on by itself — there is no Next button. The
+     result is already saved by the time this fires. */
+  useEffect(() => {
+    if (!advancing) return;
+    const id = setTimeout(() => {
+      if (nextLetter) navigate({ to: "/check/$letter", params: { letter: nextLetter } });
+      else navigate({ to: "/results" });
+    }, ADVANCE_MS);
+    return () => clearTimeout(id);
+  }, [advancing, nextLetter, navigate]);
 
   if (!info) return null;
 
@@ -83,16 +98,17 @@ function ModuleScreen() {
     setMeasured(status);
     setMeasurements(m);
     commit(status, m, observer);
+    // "unchecked" means the camera never got a reading; stay so the user can
+    // retry or switch to the questions.
+    if (status !== "unchecked") setAdvancing(true);
   };
 
   const onObserver = (id: string, value: boolean | null) => {
     const next = { ...observer, [id]: value };
     setObserver(next);
     commit(measured, measurements, next);
+    if (info.observer.every((q) => q.id in next)) setAdvancing(true);
   };
-
-  const idx = ORDER.indexOf(letter);
-  const nextLetter = ORDER[idx + 1];
   const status = resolveSign({
     measured,
     measurements,
@@ -113,11 +129,19 @@ function ModuleScreen() {
   return (
     <AppShell fitViewport>
       <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-2 sm:gap-4">
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 sm:gap-4">
-          <h1 className="title-light text-2xl sm:text-page">
-            {info.label.charAt(0) + info.label.slice(1).toLowerCase()}
-          </h1>
-          {status !== "unchecked" && <StatusChip status={status} />}
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 sm:gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
+            <h1 className="title-light text-2xl sm:text-page">
+              {info.label.charAt(0) + info.label.slice(1).toLowerCase()}
+            </h1>
+            {status !== "unchecked" && <StatusChip status={status} />}
+          </div>
+          <Link
+            to="/hub"
+            className="glass inline-flex min-h-11 shrink-0 items-center rounded-full px-4 font-mono text-[0.65rem] uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-12 sm:text-xs sm:tracking-[0.16em]"
+          >
+            All checks
+          </Link>
         </div>
 
         {offer && (
@@ -142,10 +166,7 @@ function ModuleScreen() {
 
         <GlassCard className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 sm:gap-5 sm:p-7">
           {(!hasObserver || panel === "check") && (
-            <div
-              className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto sm:gap-5"
-              style={isCamera ? ({ "--frame-h": "min(36dvh, 18rem)" } as CSSProperties) : undefined}
-            >
+            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto sm:gap-5">
               {letter === "F" && <FaceModule onMeasured={onMeasured} facing={facing} />}
               {letter === "B" && (
                 <PoseModule onMeasured={onMeasured} facing={facing} variant="balance" />
@@ -176,7 +197,7 @@ function ModuleScreen() {
                     ))}
                   </ul>
                   <PrimaryButton
-                    className="shrink-0 min-h-11 sm:min-h-16"
+                    className="shrink-0"
                     onClick={() =>
                       onMeasured("negative", [
                         { label: "Time since onset", value: elapsed },
@@ -212,24 +233,14 @@ function ModuleScreen() {
           )}
         </GlassCard>
 
-        <div className="flex shrink-0 flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <SecondaryButton
-            className="min-h-11 sm:min-h-16"
-            onClick={() => navigate({ to: "/hub" })}
+        {advancing && (
+          <p
+            role="status"
+            className="shrink-0 text-center font-mono text-xs uppercase tracking-[0.14em] text-white/90 sm:text-sm"
           >
-            Back to all checks
-          </SecondaryButton>
-          <PrimaryButton
-            className="min-h-11 sm:min-h-16"
-            onClick={() => {
-              commit();
-              if (nextLetter) navigate({ to: "/check/$letter", params: { letter: nextLetter } });
-              else navigate({ to: "/results" });
-            }}
-          >
-            {nextLetter ? `Next — ${nextLetter}` : "See results"}
-          </PrimaryButton>
-        </div>
+            Saved — {nextLetter ? `moving to ${byLetter(nextLetter).label}` : "opening results"}…
+          </p>
+        )}
       </div>
     </AppShell>
   );
