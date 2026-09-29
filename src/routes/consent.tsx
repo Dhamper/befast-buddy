@@ -49,7 +49,7 @@ function Consent() {
   };
 
   return (
-    <AppShell fitViewport>
+    <AppShell fitViewport backTo="/onset">
       <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-3 sm:gap-6">
         <h1 className="title-light shrink-0 text-2xl sm:text-page">Before we start</h1>
         <GlassCard className="flex min-h-0 flex-1 flex-col justify-center gap-3 overflow-hidden sm:gap-5">

@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import heroImage from "@/assets/befast-hero.jpg";
 import { AppShell } from "@/components/AppShell";
-import { PrimaryLink, SecondaryLink } from "@/components/ui-kit";
+import { PrimaryLink, SecondaryButton, SecondaryLink } from "@/components/ui-kit";
+import { useSession } from "@/lib/session";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +28,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { session, startNew } = useSession();
+  const navigate = useNavigate();
+  const inProgress = session.onset !== null;
+
   return (
     <AppShell showSession={false} fitViewport>
       <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center py-2 sm:py-4">
@@ -73,8 +78,26 @@ function Landing() {
               </p>
             </div>
 
-            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <PrimaryLink to="/mode">Begin</PrimaryLink>
+            {/* Two columns on phones, Continue spanning both, so the in-progress
+                set of three buttons doesn't stack three rows deep. */}
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:items-center sm:gap-4">
+              {inProgress ? (
+                <>
+                  <PrimaryLink to="/hub" className="col-span-2">
+                    Continue check
+                  </PrimaryLink>
+                  <SecondaryButton
+                    onClick={() => {
+                      startNew();
+                      navigate({ to: "/mode" });
+                    }}
+                  >
+                    New check
+                  </SecondaryButton>
+                </>
+              ) : (
+                <PrimaryLink to="/mode">Begin</PrimaryLink>
+              )}
               <SecondaryLink to="/learn">Learn more</SecondaryLink>
             </div>
           </div>

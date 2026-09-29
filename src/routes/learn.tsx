@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { GlassCard, PrimaryLink, SegmentedTabs } from "@/components/ui-kit";
 import { LETTERS } from "@/lib/content";
 import type { Letter } from "@/lib/scoring";
+import { useSession } from "@/lib/session";
 
 type Tab = Letter | "why";
 
@@ -33,6 +34,7 @@ const TABS: { value: Tab; label: string }[] = [
 ];
 
 function Learn() {
+  const inProgress = useSession().session.onset !== null;
   const [tab, setTab] = useState<Tab>("B");
   const active = LETTERS.find((l) => l.letter === tab);
 
@@ -72,8 +74,10 @@ function Learn() {
           )}
         </GlassCard>
 
-        <PrimaryLink to="/mode" className="shrink-0">
-          Start a check
+        {/* Mid-screening, "Start a check" would have restarted the setup on
+            top of the existing results; send the user back to them instead. */}
+        <PrimaryLink to={inProgress ? "/hub" : "/mode"} className="shrink-0">
+          {inProgress ? "Continue check" : "Start a check"}
         </PrimaryLink>
       </div>
     </AppShell>

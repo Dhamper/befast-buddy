@@ -127,7 +127,7 @@ function ModuleScreen() {
   const isCamera = letter !== "T";
 
   return (
-    <AppShell fitViewport>
+    <AppShell fitViewport backTo="/hub">
       <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-2 sm:gap-4">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 sm:gap-4">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
