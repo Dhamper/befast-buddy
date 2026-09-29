@@ -27,9 +27,9 @@ export function GlassCard({
 }
 
 const base =
-  // min-h-16 is deliberate everywhere: a 64px target stays tappable one-handed
-  // under stress. Only the horizontal padding and label size flex with width.
-  "inline-flex min-h-16 min-w-0 items-center justify-center gap-2 px-5 text-center transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 disabled:opacity-50 sm:gap-3 sm:px-8";
+  // 44px (48px from sm) is the platform minimum touch target. The old 64px
+  // pushed camera screens past one viewport, forcing a scroll mid-check.
+  "inline-flex min-h-11 min-w-0 items-center justify-center gap-2 px-4 text-center transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 disabled:opacity-50 sm:min-h-12 sm:gap-3 sm:px-6";
 
 export function PrimaryButton({ className, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
@@ -37,7 +37,7 @@ export function PrimaryButton({ className, ...props }: ButtonHTMLAttributes<HTML
       {...props}
       className={cn(
         base,
-        "rounded-[8px] bg-primary text-base font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85 sm:text-lg",
+        "rounded-[8px] bg-primary text-sm font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85 sm:text-base",
         className,
       )}
     />
@@ -71,7 +71,7 @@ export function PrimaryLink({
       to={to}
       className={cn(
         base,
-        "rounded-[8px] bg-primary text-base font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85 sm:text-lg",
+        "rounded-[8px] bg-primary text-sm font-extrabold uppercase tracking-wide text-primary-foreground hover:bg-primary/85 sm:text-base",
         className,
       )}
     >
@@ -196,23 +196,26 @@ export function Reticle({ children, midline }: { children: ReactNode; midline?: 
   const corner = "pointer-events-none absolute h-7 w-7 border-white border-[3px] sm:h-10 sm:w-10";
   const tick = "pointer-events-none absolute bg-white";
   return (
-    // media-frame keeps a single 4:5 ratio and caps the height in dvh, so the
-    // frame never pushes the action buttons off screen. A single ratio also
-    // keeps PoseModule's 480x600 landmark canvas aligned at every width.
-    <div className="media-frame relative overflow-hidden rounded-[18px] bg-black/60">
-      {children}
-      <div className="absolute inset-2 sm:inset-3">
-        <div className={cn(corner, "left-0 top-0 border-b-0 border-r-0")} />
-        <div className={cn(corner, "right-0 top-0 border-b-0 border-l-0")} />
-        <div className={cn(corner, "bottom-0 left-0 border-r-0 border-t-0")} />
-        <div className={cn(corner, "bottom-0 right-0 border-l-0 border-t-0")} />
-        <div className={cn(tick, "left-1/2 top-0 h-[3px] w-6 -translate-x-1/2 sm:w-8")} />
-        <div className={cn(tick, "bottom-0 left-1/2 h-[3px] w-6 -translate-x-1/2 sm:w-8")} />
-        <div className={cn(tick, "left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 sm:h-8")} />
-        <div className={cn(tick, "right-0 top-1/2 h-6 w-[3px] -translate-y-1/2 sm:h-8")} />
-        {midline && (
-          <div className="pointer-events-none absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/45" />
-        )}
+    // media-slot takes whatever height the rest of the screen leaves, and
+    // media-frame is the largest 4:5 box that fits inside it — as big as the
+    // screen allows without pushing the buttons off it. A single ratio also
+    // keeps PoseModule's 480x600 landmark canvas aligned at every size.
+    <div className="media-slot">
+      <div className="media-frame relative overflow-hidden rounded-[18px] bg-black/60">
+        {children}
+        <div className="absolute inset-2 sm:inset-3">
+          <div className={cn(corner, "left-0 top-0 border-b-0 border-r-0")} />
+          <div className={cn(corner, "right-0 top-0 border-b-0 border-l-0")} />
+          <div className={cn(corner, "bottom-0 left-0 border-r-0 border-t-0")} />
+          <div className={cn(corner, "bottom-0 right-0 border-l-0 border-t-0")} />
+          <div className={cn(tick, "left-1/2 top-0 h-[3px] w-6 -translate-x-1/2 sm:w-8")} />
+          <div className={cn(tick, "bottom-0 left-1/2 h-[3px] w-6 -translate-x-1/2 sm:w-8")} />
+          <div className={cn(tick, "left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 sm:h-8")} />
+          <div className={cn(tick, "right-0 top-1/2 h-6 w-[3px] -translate-y-1/2 sm:h-8")} />
+          {midline && (
+            <div className="pointer-events-none absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/45" />
+          )}
+        </div>
       </div>
     </div>
   );

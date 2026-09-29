@@ -145,7 +145,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 sm:gap-4">
       <Reticle>
         {stage === "field" ? (
           <div className="absolute inset-0">
@@ -193,7 +193,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
         </div>
       )}
 
-      <div className="grid gap-3 sm:flex sm:flex-wrap">
+      <div className="flex shrink-0 gap-2 sm:gap-3 [&>*]:flex-1">
         {stage === "idle" && <PrimaryButton onClick={beginField}>Check</PrimaryButton>}
         {stage === "field" && (
           <PrimaryButton onClick={seen} className="flex-1">
@@ -210,7 +210,7 @@ export function EyesModule({ onMeasured, facing }: ModuleProps) {
             )
           }
         >
-          Replay instruction
+          Replay<span className="hidden sm:inline">&nbsp;instruction</span>
         </SecondaryButton>
       </div>
     </div>

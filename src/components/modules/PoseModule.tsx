@@ -207,7 +207,7 @@ export function PoseModule({
   };
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 sm:gap-4">
       <Reticle>
         <video ref={videoRef} muted playsInline className="size-full scale-x-[-1] object-cover" />
         <canvas ref={canvasRef} width={480} height={600} className="absolute inset-0 size-full" />
@@ -244,13 +244,15 @@ export function PoseModule({
             : instruction}
       </p>
 
-      <div className="grid gap-3 sm:flex sm:flex-wrap">
+      <div className="flex shrink-0 gap-2 sm:gap-3 [&>*]:flex-1">
         {phase === "idle" || phase === "loading" ? (
           <PrimaryButton onClick={begin} disabled={phase === "loading"}>
             {phase === "loading" ? "Starting…" : "Check"}
           </PrimaryButton>
         ) : null}
-        <SecondaryButton onClick={() => speak(instruction)}>Replay instruction</SecondaryButton>
+        <SecondaryButton onClick={() => speak(instruction)}>
+          Replay<span className="hidden sm:inline">&nbsp;instruction</span>
+        </SecondaryButton>
       </div>
     </div>
   );

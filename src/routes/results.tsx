@@ -67,8 +67,8 @@ function Results() {
             Time since onset {elapsed} · reported as “{onsetLabel}”
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:mt-6 sm:flex-row sm:flex-wrap sm:gap-4">
-            <EmergencyCallButton className="min-h-11 justify-center py-2 sm:min-h-16 sm:py-0" />
-            <SecondaryLink to="/emergency" className="min-h-11 sm:min-h-16">
+            <EmergencyCallButton className="min-h-11 justify-center py-2 sm:min-h-12 sm:py-0" />
+            <SecondaryLink to="/emergency" className="min-h-11 sm:min-h-12">
               Emergency action steps
             </SecondaryLink>
           </div>
@@ -127,13 +127,13 @@ function Results() {
         </GlassCard>
 
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
-          <SecondaryLink to="/hub" className="min-h-11 sm:min-h-16">
+          <SecondaryLink to="/hub" className="min-h-11 sm:min-h-12">
             Back to checks
           </SecondaryLink>
           <Link
             to="/history"
             onClick={archive}
-            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-5 font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-16 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
+            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-5 font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-12 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
           >
             Save to history
           </Link>

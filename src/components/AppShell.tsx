@@ -12,7 +12,7 @@ export function EmergencyCallButton({ className }: { className?: string }) {
       href={`tel:${EMERGENCY.number}`}
       aria-label={`Call ${EMERGENCY.number}, ${EMERGENCY.label}`}
       className={cn(
-        "inline-flex min-h-16 items-center gap-2 rounded-[8px] bg-alert-high px-5 text-base font-extrabold uppercase tracking-wide text-white shadow-lg shadow-black/40 hover:brightness-110 sm:gap-3 sm:px-6 sm:text-lg",
+        "inline-flex min-h-12 items-center gap-2 rounded-[8px] bg-alert-high px-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-lg shadow-black/40 hover:brightness-110 sm:min-h-14 sm:gap-3 sm:px-6 sm:text-lg",
         className,
       )}
     >
@@ -100,7 +100,7 @@ export function AppShell({
           // A fit page reserves only what the button actually occupies, since
           // every pixel it gives up has to come out of the content.
           paddingBottom: started
-            ? `calc(var(--app-footer-h) + ${fitViewport ? "5.5rem" : "7rem"})`
+            ? `calc(var(--app-footer-h) + ${fitViewport ? "var(--call-reserve)" : "7rem"})`
             : `calc(var(--app-footer-h) + ${fitViewport ? "0.75rem" : "2rem"})`,
         }}
       >
@@ -110,7 +110,7 @@ export function AppShell({
       {started && (
         <div
           className="fixed right-4 z-40 sm:right-8"
-          style={{ bottom: "calc(var(--app-footer-h) + 1rem)" }}
+          style={{ bottom: "calc(var(--app-footer-h) + 0.75rem)" }}
         >
           <EmergencyCallButton />
         </div>

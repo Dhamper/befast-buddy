@@ -135,15 +135,12 @@
     var(--sky) 100%
   );
 
-  /*
-   * Height budget for a camera/waveform frame. Capped in dvh so the frame plus
-   * its instruction text and action buttons stay on one screen in landscape and
-   * on short viewports, instead of pushing the "Check" button below the fold.
-   */
-  --frame-h: min(62dvh, 30rem);
-
   /* Measured at runtime by AppShell so nothing hides behind the fixed footer. */
   --app-footer-h: 5rem;
+
+  /* Height a one-screen page leaves for the floating call button: its 0.75rem
+     offset above the footer, its own height, and a small gap above it. */
+  --call-reserve: 4.25rem;
 
   /*
    * Signature stepped corner. Fixed 88x56px ate a quarter of a card's width on
@@ -154,10 +151,9 @@
   --notch-y: clamp(2rem, 7vw, 3.5rem);
 }
 
-/* Landscape phones: give the frame more room by trading height for width. */
-@media (orientation: landscape) and (max-height: 30rem) {
+@media (width >= 40rem) {
   :root {
-    --frame-h: 78dvh;
+    --call-reserve: 5rem;
   }
 }
 
@@ -217,15 +213,25 @@
 }
 
 /*
- * Camera / waveform frame. Width is capped so that height (width * 5/4) never
- * exceeds --frame-h, which keeps the exact 4:5 aspect ratio intact at every
- * size — the pose-landmark canvas overlay is drawn in that ratio and would
- * misalign if the box were allowed to letterbox instead.
+ * Camera / waveform frame. media-slot is a flex child that absorbs all the
+ * height its column has left over (never less than 7rem — below that the
+ * column scrolls instead); media-frame is then the largest exact 4:5 box that
+ * fits the slot in both directions. The ratio must stay exact: the
+ * pose-landmark canvas overlay is drawn in it and would misalign if the box
+ * were allowed to letterbox instead.
  */
-@utility media-frame {
+@utility media-slot {
+  container-type: size;
+  flex: 1 1 0%;
+  min-height: 7rem;
   width: 100%;
-  max-width: min(100%, calc(var(--frame-h) * 4 / 5));
-  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@utility media-frame {
+  width: min(100cqw, 100cqh * 4 / 5);
   aspect-ratio: 4 / 5;
 }
 
