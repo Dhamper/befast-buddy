@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { Phone } from "lucide-react";
+import { Link, useCanGoBack, useLocation, useRouter } from "@tanstack/react-router";
+import { ChevronLeft, History as HistoryIcon, Phone } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { DISCLAIMER, EMERGENCY } from "@/theme";
 import { useElapsed, useSession } from "@/lib/session";
@@ -26,9 +26,17 @@ export function AppShell({
   children,
   showSession = true,
   fitViewport = false,
+  backTo = "/",
+  floatingCall = true,
 }: {
   children: ReactNode;
   showSession?: boolean;
+  /** Where Back goes when there is no in-app page to return to, e.g. a page
+   *  opened directly from a link or a reload. */
+  backTo?: string;
+  /** Off on pages that already show a Call button in their content, where a
+   *  second floating one only covered it and cost the page its reserve. */
+  floatingCall?: boolean;
   /**
    * Lock the page to exactly one screen: the shell takes the viewport height
    * and main never scrolls, so the page's own flex children have to share the
@@ -39,7 +47,13 @@ export function AppShell({
   const { session } = useSession();
   const elapsed = useElapsed(session.onsetRecordedAt);
   const started = showSession && session.onset !== null;
+  const showCall = started && floatingCall;
   const footerRef = useRef<HTMLElement | null>(null);
+  const router = useRouter();
+  const canGoBack = useCanGoBack();
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
+  const goBack = () => (canGoBack ? router.history.back() : router.navigate({ to: backTo }));
 
   /*
    * The disclaimer footer is fixed and its height changes with viewport width
@@ -64,13 +78,31 @@ export function AppShell({
     >
       <Decor />
       <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-6 sm:py-5 lg:px-10">
-        <Link
-          to="/"
-          aria-label="BEFAST AI home"
-          className="display-xl shrink-0 text-xl text-foreground sm:text-2xl"
-        >
-          BEFAST <span className="text-sky">AI</span>
-        </Link>
+        {/* Every page but the landing one gets a Back button: several pages
+            (History, Learn, the setup steps) otherwise had no way out except
+            the wordmark, which doesn't read as a button. */}
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          {!isHome && (
+            <button
+              type="button"
+              onClick={goBack}
+              aria-label="Back"
+              className="glass inline-flex size-9 items-center justify-center rounded-full hover:bg-white/20 sm:h-10 sm:w-auto sm:gap-1 sm:pl-2 sm:pr-4"
+            >
+              <ChevronLeft aria-hidden className="size-5 shrink-0" />
+              <span className="hidden font-mono text-xs uppercase tracking-[0.16em] sm:inline">
+                Back
+              </span>
+            </button>
+          )}
+          <Link
+            to="/"
+            aria-label="BEFAST AI home"
+            className="display-xl shrink-0 text-xl text-foreground max-[23rem]:text-lg sm:text-2xl"
+          >
+            BEFAST <span className="text-sky">AI</span>
+          </Link>
+        </div>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {started && (
             <span
@@ -81,12 +113,18 @@ export function AppShell({
               {elapsed}
             </span>
           )}
-          <Link
-            to="/history"
-            className="glass rounded-full px-3 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.14em] hover:bg-white/20 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.16em]"
-          >
-            History
-          </Link>
+          {pathname !== "/history" && (
+            // Icon-only below 23rem: with Back and the onset timer, the text
+            // label wrapped the header onto a second row on 320px phones.
+            <Link
+              to="/history"
+              aria-label="History"
+              className="glass inline-flex items-center rounded-full px-3 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.14em] hover:bg-white/20 max-[23rem]:px-2 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.16em]"
+            >
+              <HistoryIcon aria-hidden className="hidden size-4 max-[23rem]:block" />
+              <span className="max-[23rem]:hidden">History</span>
+            </Link>
+          )}
         </div>
       </header>
 
@@ -99,7 +137,7 @@ export function AppShell({
           // Clear the fixed footer, plus the floating call button when shown.
           // A fit page reserves only what the button actually occupies, since
           // every pixel it gives up has to come out of the content.
-          paddingBottom: started
+          paddingBottom: showCall
             ? `calc(var(--app-footer-h) + ${fitViewport ? "var(--call-reserve)" : "7rem"})`
             : `calc(var(--app-footer-h) + ${fitViewport ? "0.75rem" : "2rem"})`,
         }}
@@ -107,7 +145,7 @@ export function AppShell({
         {children}
       </main>
 
-      {started && (
+      {showCall && (
         <div
           className="fixed right-4 z-40 sm:right-8"
           style={{ bottom: "calc(var(--app-footer-h) + 0.75rem)" }}

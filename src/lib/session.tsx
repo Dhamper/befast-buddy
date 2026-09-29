@@ -42,6 +42,9 @@ type Ctx = {
   saveResult: (l: Letter, r: ModuleResult) => void;
   reset: () => void;
   archive: () => void;
+  /** Save the current session to history if it has any results, then clear
+   *  it. Without this a second screening inherited the first one's results. */
+  startNew: () => void;
   history: Session[];
   clearHistory: () => void;
 };
@@ -80,28 +83,31 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         /* ignore */
       }
     };
+    // Saving the same session twice replaces its entry instead of duplicating it.
+    const withCurrent = () =>
+      [session, ...history.filter((h) => h.startedAt !== session.startedAt)].slice(0, 20);
     return {
       session,
       setMode: (mode) => setSession((s) => ({ ...s, mode })),
-      setOnset: (onset) =>
-        setSession((s) => ({ ...s, onset, onsetRecordedAt: Date.now() })),
-      setPermissions: (permissions) =>
-        setSession((s) => ({ ...s, permissions })),
+      setOnset: (onset) => setSession((s) => ({ ...s, onset, onsetRecordedAt: Date.now() })),
+      setPermissions: (permissions) => setSession((s) => ({ ...s, permissions })),
       saveResult: (l, r) =>
         setSession((s) => ({
           ...s,
           results: { ...s.results, [l]: { ...r, completedAt: Date.now() } },
         })),
       reset: () => setSession(emptySession()),
-      archive: () => persistHistory([session, ...history].slice(0, 20)),
+      archive: () => persistHistory(withCurrent()),
+      startNew: () => {
+        if (Object.keys(session.results).length > 0) persistHistory(withCurrent());
+        setSession(emptySession());
+      },
       history,
       clearHistory: () => persistHistory([]),
     };
   }, [session, history]);
 
-  return (
-    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
-  );
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
 export function useSession() {

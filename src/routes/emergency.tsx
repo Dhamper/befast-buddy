@@ -90,7 +90,7 @@ function Emergency() {
   };
 
   return (
-    <AppShell fitViewport>
+    <AppShell fitViewport backTo="/hub" floatingCall={false}>
       <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-2 sm:gap-4">
         <div className="shrink-0 rounded-[16px] border-2 border-alert-high bg-alert-high/25 p-3 sm:rounded-[28px] sm:p-7">
           <p className="eyebrow mb-1 sm:mb-3">Emergency action</p>
@@ -132,23 +132,25 @@ function Emergency() {
           )}
         </GlassCard>
 
-        <div className="grid shrink-0 gap-2 sm:flex sm:flex-wrap sm:gap-3">
-          <PrimaryButton onClick={copy} className="min-h-11 sm:min-h-12">
+        {/* 2x2 on phones: four stacked rows pushed the last two under the
+            footer on a 568px-tall screen. */}
+        <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+          <PrimaryButton onClick={copy} className="px-2 sm:px-6">
             {copied ? "Copied" : "Copy text"}
           </PrimaryButton>
-          <SecondaryButton onClick={download} className="min-h-11 sm:min-h-12">
+          <SecondaryButton onClick={download} className="px-2 sm:px-6">
             Download card
           </SecondaryButton>
           <a
             href="https://www.google.com/maps/search/stroke+hospital+emergency+near+me"
             target="_blank"
             rel="noreferrer"
-            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-5 text-center font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-12 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
+            className="glass inline-flex min-h-11 items-center justify-center rounded-[8px] px-2 text-center font-mono text-xs uppercase tracking-[0.14em] hover:bg-white/20 sm:min-h-12 sm:px-6 sm:text-sm sm:tracking-[0.18em]"
           >
-            Find nearest hospital
+            Find<span className="hidden sm:inline">&nbsp;nearest</span>&nbsp;hospital
           </a>
-          <SecondaryLink to="/results" className="min-h-11 sm:min-h-12">
-            Back to result
+          <SecondaryLink to="/results" className="px-2 sm:px-6">
+            View result
           </SecondaryLink>
         </div>
       </div>

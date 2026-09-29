@@ -28,7 +28,7 @@ function Onset() {
   const navigate = useNavigate();
 
   return (
-    <AppShell showSession={false} fitViewport>
+    <AppShell showSession={false} fitViewport backTo="/mode">
       <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-2 sm:gap-6">
         <h1 className="title-light shrink-0 text-2xl sm:text-page">When did the symptoms start?</h1>
         <p className="shrink-0 text-sm text-white/85 sm:text-base">
