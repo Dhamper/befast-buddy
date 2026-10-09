@@ -135,6 +135,16 @@ export function StatusChip({ status }: { status: SignStatus }) {
   );
 }
 
+/** One "Confidence" line in a measurement list; shown only under the screenshot bypass. */
+export function ConfidenceRow({ value }: { value: number }) {
+  return (
+    <li className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3">
+      <span className="text-sm text-white/80 sm:text-base">Confidence</span>
+      <span className="font-mono text-xs sm:text-sm">{value.toFixed(1)}%</span>
+    </li>
+  );
+}
+
 /**
  * Horizontal picker used to swap between bounded panels instead of stacking
  * them — the way every "long content" page (Results, Learn, Emergency,

@@ -3,6 +3,8 @@
  * Every threshold below is an UNVALIDATED PROTOTYPE VALUE — not clinical.
  */
 
+import { demoBypass } from "./demo";
+
 export type SignStatus = "positive" | "uncertain" | "negative" | "unchecked";
 export type Letter = "B" | "E" | "F" | "A" | "S" | "T";
 
@@ -78,6 +80,11 @@ export const ONSET_OPTIONS: { key: OnsetKey; label: string }[] = [
 export function resolveSign(result?: ModuleResult): SignStatus {
   if (!result) return "unchecked";
   const answers = Object.values(result.observer);
+
+  // Screenshot bypass: a check that has run, or been answered, reads as normal.
+  if (demoBypass) {
+    return result.measured === "unchecked" && answers.length === 0 ? "unchecked" : "negative";
+  }
 
   if (answers.some((a) => a === true)) return "positive";
   if (result.measured === "positive") return "positive";
