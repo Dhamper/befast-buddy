@@ -144,9 +144,8 @@ export function assess(
   }
   return {
     tier: "clear",
-    headline: "No warning signs detected by this prototype",
-    action:
-      "This does not rule out a stroke. If anything seems wrong, call emergency services immediately.",
+    headline: "Normal — no warning signs detected",
+    action: "This screening does not rule out a stroke.",
     flagged,
     uncertain,
   };
