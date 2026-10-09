@@ -140,7 +140,7 @@ export function ConfidenceRow({ value }: { value: number }) {
   return (
     <li className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3">
       <span className="text-sm text-white/80 sm:text-base">Confidence</span>
-      <span className="font-mono text-xs sm:text-sm">{value}%</span>
+      <span className="font-mono text-xs sm:text-sm">{value.toFixed(1)}%</span>
     </li>
   );
 }

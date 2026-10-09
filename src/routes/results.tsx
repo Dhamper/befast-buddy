@@ -81,7 +81,7 @@ function Results() {
           </p>
           {demoBypass && (
             <p className="mt-1 text-xs text-white/80 sm:mt-2 sm:text-base">
-              Overall confidence {demoOverallConfidence(session.startedAt)}%
+              Overall confidence {demoOverallConfidence(session.startedAt).toFixed(1)}%
             </p>
           )}
           <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:flex sm:flex-wrap sm:gap-4">
