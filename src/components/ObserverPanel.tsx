@@ -32,7 +32,7 @@ export function ObserverPanel({
         <span className="min-w-0">
           <span className="eyebrow block text-white/80">Observer questions</span>
           <span className="text-sm text-white/90 sm:text-base">
-            Answer these if the camera can't be used — a “Yes” always counts.
+            Answer all three to continue — a “Yes” always counts.
           </span>
         </span>
         <ChevronDown

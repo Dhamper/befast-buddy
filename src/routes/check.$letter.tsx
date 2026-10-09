@@ -1,13 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import {
-  ConfidenceRow,
-  GlassCard,
-  PrimaryButton,
-  SegmentedTabs,
-  StatusChip,
-} from "@/components/ui-kit";
+import { ConfidenceRow, GlassCard, SegmentedTabs, StatusChip } from "@/components/ui-kit";
 import { ObserverPanel } from "@/components/ObserverPanel";
 import { FaceModule } from "@/components/modules/FaceModule";
 import { PoseModule } from "@/components/modules/PoseModule";
@@ -68,12 +62,33 @@ function ModuleScreen() {
   const [observer, setObserver] = useState<Record<string, boolean | null>>(
     existing?.observer ?? {},
   );
-  const forceQuestions = session.mode === "other" || !session.permissions?.camera;
-  const [panel, setPanel] = useState<"check" | "questions">(forceQuestions ? "questions" : "check");
+  // Without a camera only the questions can be asked.
+  const forceQuestions = !session.permissions?.camera;
+  // The order is fixed: camera check first, then its questions. A check whose
+  // camera step already ran reopens on the questions. forceQuestions is read
+  // on every render, not just the first: after a reload the session is only
+  // restored from storage after this screen has mounted.
+  const [step, setPanel] = useState<"check" | "questions">(
+    existing && existing.measured !== "unchecked" ? "questions" : "check",
+  );
+  const panel = forceQuestions ? "questions" : step;
+  const [toQuestions, setToQuestions] = useState(false);
   const [advancing, setAdvancing] = useState(false);
 
   const idx = ORDER.indexOf(letter);
   const nextLetter = ORDER[idx + 1];
+  const onsetLabel = ONSET_OPTIONS.find((o) => o.key === session.onset)?.label ?? "not recorded";
+
+  /* A finished camera step moves to its questions by itself, once its result
+     has been readable for a moment — there is no Questions tab to press. */
+  useEffect(() => {
+    if (!toQuestions) return;
+    const id = setTimeout(() => {
+      setPanel("questions");
+      setToQuestions(false);
+    }, ADVANCE_MS);
+    return () => clearTimeout(id);
+  }, [toQuestions]);
 
   /* A finished station moves on by itself — there is no Next button. The
      result is already saved by the time this fires. */
@@ -85,6 +100,22 @@ function ModuleScreen() {
     }, ADVANCE_MS);
     return () => clearTimeout(id);
   }, [advancing, nextLetter, navigate]);
+
+  /* T has nothing to measure or ask: its time summary is recorded as soon as
+     the screen opens, which then moves on to the results by itself. */
+  useEffect(() => {
+    if (letter !== "T") return;
+    const m: Measurement[] = [
+      { label: "Time since onset", value: elapsed },
+      { label: "Reported onset", value: onsetLabel },
+    ];
+    setMeasured("negative");
+    setMeasurements(m);
+    saveResult("T", { measured: "negative", measurements: m, observer: {}, skippedCamera: false });
+    setAdvancing(true);
+    // Once per visit: the elapsed clock ticking must not re-record it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [letter]);
 
   if (!info) return null;
 
@@ -105,9 +136,10 @@ function ModuleScreen() {
     setMeasured(status);
     setMeasurements(m);
     commit(status, m, observer);
-    // "unchecked" means the camera never got a reading; stay so the user can
-    // retry or switch to the questions.
-    if (status !== "unchecked") setAdvancing(true);
+    // Questions always follow the camera step, even when it got no reading
+    // ("unchecked") — the answers then carry the sign on their own.
+    if (info.observer.length > 0) setToQuestions(true);
+    else setAdvancing(true);
   };
 
   const onObserver = (id: string, value: boolean | null) => {
@@ -127,8 +159,6 @@ function ModuleScreen() {
     ...session.results,
     [letter]: { measured, measurements, observer },
   });
-
-  const onsetLabel = ONSET_OPTIONS.find((o) => o.key === session.onset)?.label ?? "not recorded";
 
   const facing = session.mode === "other" ? "environment" : "user";
 
@@ -162,11 +192,14 @@ function ModuleScreen() {
           </Link>
         )}
 
-        {hasObserver && (
+        {/* A step indicator, not a picker: the screen moves from the check to
+            the questions by itself. */}
+        {hasObserver && !forceQuestions && (
           <SegmentedTabs
+            className="pointer-events-none"
             options={[
-              { value: "check", label: isCamera ? "Check" : "Time" },
-              { value: "questions", label: "Questions" },
+              { value: "check", label: "1 · Check" },
+              { value: "questions", label: "2 · Questions" },
             ]}
             value={panel}
             onChange={setPanel}
@@ -205,17 +238,6 @@ function ModuleScreen() {
                       </li>
                     ))}
                   </ul>
-                  <PrimaryButton
-                    className="shrink-0"
-                    onClick={() =>
-                      onMeasured("negative", [
-                        { label: "Time since onset", value: elapsed },
-                        { label: "Reported onset", value: onsetLabel },
-                      ])
-                    }
-                  >
-                    Record time summary
-                  </PrimaryButton>
                 </div>
               )}
 
@@ -249,12 +271,18 @@ function ModuleScreen() {
           )}
         </GlassCard>
 
-        {advancing && (
+        {(advancing || toQuestions) && (
           <p
             role="status"
             className="shrink-0 text-center font-mono text-xs uppercase tracking-[0.14em] text-white/90 sm:text-sm"
           >
-            Saved — {nextLetter ? `moving to ${byLetter(nextLetter).label}` : "opening results"}…
+            Saved —{" "}
+            {toQuestions
+              ? "now the questions"
+              : nextLetter
+                ? `moving to ${byLetter(nextLetter).label}`
+                : "opening results"}
+            …
           </p>
         )}
       </div>
