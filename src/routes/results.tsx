@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import {
+  ConfidenceRow,
   GlassCard,
   PrimaryButton,
   SecondaryLink,
@@ -12,6 +13,7 @@ import { EmergencyCallButton } from "@/components/AppShell";
 import { LETTERS, byLetter } from "@/lib/content";
 import { assess, ONSET_OPTIONS, resolveSign, type Letter } from "@/lib/scoring";
 import { useElapsed, useSession } from "@/lib/session";
+import { demoBypass, demoConfidence, demoOverallConfidence } from "@/lib/demo";
 
 export const Route = createFileRoute("/results")({
   head: () => ({
@@ -60,6 +62,8 @@ function Results() {
   const r = session.results[letter];
   const status = resolveSign(r);
   const info = byLetter(letter);
+  const confidence =
+    demoBypass && status !== "unchecked" ? demoConfidence(session.startedAt, letter) : null;
 
   return (
     <AppShell fitViewport backTo="/hub" floatingCall={false}>
@@ -75,6 +79,11 @@ function Results() {
           <p className="mt-1 text-xs text-white/80 sm:mt-2 sm:text-base">
             Time since onset {elapsed} · reported as “{onsetLabel}”
           </p>
+          {demoBypass && (
+            <p className="mt-1 text-xs text-white/80 sm:mt-2 sm:text-base">
+              Overall confidence {demoOverallConfidence(session.startedAt)}%
+            </p>
+          )}
           <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:flex sm:flex-wrap sm:gap-4">
             <EmergencyCallButton className="justify-center px-2 sm:px-6" />
             <SecondaryLink to="/emergency" className="px-2 sm:px-6">
@@ -111,6 +120,11 @@ function Results() {
               <p className="text-sm text-white/70 sm:text-base">
                 No automated measurement recorded.
               </p>
+            )}
+            {confidence !== null && (
+              <ul className="mt-2 sm:mt-3">
+                <ConfidenceRow value={confidence} />
+              </ul>
             )}
             {info.observer.length > 0 && r && (
               <ul className="mt-3 space-y-1 border-t border-white/20 pt-3 text-sm sm:mt-4 sm:pt-4 sm:text-base">

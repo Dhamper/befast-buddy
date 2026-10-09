@@ -1,7 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { GlassCard, PrimaryButton, SegmentedTabs, StatusChip } from "@/components/ui-kit";
+import {
+  ConfidenceRow,
+  GlassCard,
+  PrimaryButton,
+  SegmentedTabs,
+  StatusChip,
+} from "@/components/ui-kit";
 import { ObserverPanel } from "@/components/ObserverPanel";
 import { FaceModule } from "@/components/modules/FaceModule";
 import { PoseModule } from "@/components/modules/PoseModule";
@@ -17,6 +23,7 @@ import {
   type SignStatus,
 } from "@/lib/scoring";
 import { useElapsed, useSession } from "@/lib/session";
+import { demoBypass, demoConfidence } from "@/lib/demo";
 
 const ORDER: Letter[] = ["B", "E", "F", "A", "S", "T"];
 
@@ -114,6 +121,8 @@ function ModuleScreen() {
     measurements,
     observer,
   });
+  const confidence =
+    demoBypass && status !== "unchecked" ? demoConfidence(session.startedAt, letter) : null;
   const offer = shouldOfferEmergency({
     ...session.results,
     [letter]: { measured, measurements, observer },
@@ -210,17 +219,19 @@ function ModuleScreen() {
                 </div>
               )}
 
-              {isCamera && measurements.length > 0 && (
+              {((isCamera && measurements.length > 0) || confidence !== null) && (
                 <ul className="shrink-0 space-y-1 border-t border-white/20 pt-3 text-sm sm:space-y-2 sm:pt-5 sm:text-base">
-                  {measurements.map((m) => (
-                    <li
-                      key={m.label}
-                      className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3"
-                    >
-                      <span className="text-white/80">{m.label}</span>
-                      <span className="font-mono text-xs sm:text-sm">{m.value}</span>
-                    </li>
-                  ))}
+                  {isCamera &&
+                    measurements.map((m) => (
+                      <li
+                        key={m.label}
+                        className="grid gap-0.5 sm:flex sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3"
+                      >
+                        <span className="text-white/80">{m.label}</span>
+                        <span className="font-mono text-xs sm:text-sm">{m.value}</span>
+                      </li>
+                    ))}
+                  {confidence !== null && <ConfidenceRow value={confidence} />}
                 </ul>
               )}
             </div>
@@ -229,6 +240,11 @@ function ModuleScreen() {
           {hasObserver && panel === "questions" && (
             <div className="min-h-0 flex-1 overflow-y-auto">
               <ObserverPanel info={info} answers={observer} onChange={onObserver} forceOpen />
+              {confidence !== null && (
+                <ul className="mt-3 border-t border-white/20 pt-3 text-sm sm:text-base">
+                  <ConfidenceRow value={confidence} />
+                </ul>
+              )}
             </div>
           )}
         </GlassCard>
