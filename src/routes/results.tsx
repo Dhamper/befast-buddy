@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import {
   ConfidenceRow,
@@ -47,7 +48,7 @@ function Results() {
       ? "bg-alert-high/25 border-alert-high"
       : result.tier === "uncertain"
         ? "bg-alert-mid/20 border-alert-mid"
-        : "bg-white/10 border-white/30";
+        : "bg-emerald-700/90 border-done";
 
   const tabs = LETTERS.map((l) => ({
     value: l.letter,
@@ -72,9 +73,28 @@ function Results() {
             says what this page is, and the space goes to the per-sign card. */}
         <h1 className="title-light sr-only shrink-0 sm:not-sr-only sm:text-page">Result</h1>
 
-        <div className={`shrink-0 rounded-[16px] border p-3 sm:rounded-[28px] sm:p-7 ${tint}`}>
-          <p className="eyebrow mb-2 hidden text-white/85 sm:mb-3 sm:block">Urgency tier</p>
-          <h2 className="display-xl text-xl sm:text-display">{result.headline}</h2>
+        <div
+          className={`relative shrink-0 rounded-[16px] border p-3 sm:rounded-[28px] sm:p-7 ${tint}`}
+        >
+          {result.tier === "clear" && (
+            <div
+              aria-hidden
+              className="absolute right-3 top-3 flex size-16 -rotate-12 flex-col items-center justify-center rounded-full bg-white text-emerald-700 shadow-lg sm:right-7 sm:top-7 sm:size-28"
+            >
+              <Check className="size-7 stroke-[3.5] sm:size-12" />
+              <span className="font-mono text-[0.55rem] font-bold uppercase tracking-[0.14em] sm:text-xs">
+                Normal
+              </span>
+            </div>
+          )}
+          <p className="eyebrow mb-2 hidden text-white/85 sm:mb-3 sm:block">
+            {result.tier === "clear" ? "Screening result" : "Urgency tier"}
+          </p>
+          <h2
+            className={`display-xl text-xl sm:text-display ${result.tier === "clear" ? "pr-20 sm:pr-32" : ""}`}
+          >
+            {result.headline}
+          </h2>
           <p className="mt-2 text-sm text-white/90 sm:mt-4 sm:text-lg">{result.action}</p>
           <p className="mt-1 text-xs text-white/80 sm:mt-2 sm:text-base">
             Time since onset {elapsed} · reported as “{onsetLabel}”
@@ -84,13 +104,17 @@ function Results() {
               Overall confidence {demoOverallConfidence(session.startedAt).toFixed(1)}%
             </p>
           )}
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:flex sm:flex-wrap sm:gap-4">
-            <EmergencyCallButton className="justify-center px-2 sm:px-6" />
-            <SecondaryLink to="/emergency" className="px-2 sm:px-6">
-              <span className="sm:hidden">Action steps</span>
-              <span className="hidden sm:inline">Emergency action steps</span>
-            </SecondaryLink>
-          </div>
+          {/* A normal result carries no call-to-action: the emergency buttons
+              appear only when a sign is flagged or uncertain. */}
+          {result.tier !== "clear" && (
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:flex sm:flex-wrap sm:gap-4">
+              <EmergencyCallButton className="justify-center px-2 sm:px-6" />
+              <SecondaryLink to="/emergency" className="px-2 sm:px-6">
+                <span className="sm:hidden">Action steps</span>
+                <span className="hidden sm:inline">Emergency action steps</span>
+              </SecondaryLink>
+            </div>
+          )}
         </div>
 
         <SegmentedTabs options={tabs} value={letter} onChange={setLetter} />
